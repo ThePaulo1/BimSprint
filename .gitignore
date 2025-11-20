@@ -1,0 +1,10 @@
+#IDE
+.idea
+
+# Serwist
+public/sw*
+public/swe-worker*
+
+# Node
+/node_modules/
+/.next/
