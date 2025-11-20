@@ -30,7 +30,7 @@ export default function Home() {
             setSpeed(0);
             setSpeedNotRetrieved(true);
         } else {
-            setSpeed(Math.round(currentSpeed * 3.6));
+            setSpeed(Number((currentSpeed * 3.6).toFixed(2)));
             setSpeedNotRetrieved(false);
         }
         console.log(position.coords);
