@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import {constants} from "./constants";
+import {constants} from "../constants";
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
     return {
