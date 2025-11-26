@@ -1,8 +1,9 @@
 import type {Metadata, Viewport} from "next";
 import type {ReactNode} from "react";
 import "./globals.css";
-import Home from "./page";
 import {constants} from "../constants";
+import Menu from "../components/Menu";
+import {cookies} from "next/headers";
 
 
 export const metadata: Metadata = {
@@ -31,11 +32,15 @@ export const viewport: Viewport = {
     themeColor: "#FFFFFF",
 };
 
-export default function RootLayout({children}: { children: ReactNode }) {
+export default async function RootLayout({children}: { children: ReactNode }) {
+    const cookieStore = await cookies();
+    const theme = cookieStore.get('theme')?.value || 'system';
+
     return (
-        <html lang="en" dir="ltr">
+        <html lang="en" dir="ltr" className={theme}>
         <body>
-        <Home/>
+        <Menu/>
+        {children}
         </body>
         </html>
     );
