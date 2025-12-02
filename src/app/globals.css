@@ -1,2 +1,24 @@
 @import "tailwindcss";
-@custom-variant dark (&:where(.dark, .dark *));
+
+@custom-variant dark (&:where([data-mantine-color-scheme=dark], [data-mantine-color-scheme=dark] *));
+
+@theme {
+    --color-darkmode-gray: #212121;
+    --color-darkmode-soft-white: #ececec;
+    --color-darkmode-soft-gray: #b4b4b4;
+
+
+    --animate-breathing: breathing 6s ease-in-out infinite;
+    --animate-pulse-slow: pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+    @keyframes breathing {
+        0%, 100% {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1);
+            opacity: 0.8;
+        }
+    }
+}

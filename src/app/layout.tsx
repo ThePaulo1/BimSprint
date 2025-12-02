@@ -4,7 +4,10 @@ import "./globals.css";
 import {constants} from "../constants";
 import Menu from "../components/Menu";
 import {cookies} from "next/headers";
-
+import '@mantine/core/styles.css';
+import {ColorSchemeScript, MantineProvider, mantineHtmlProps} from '@mantine/core';
+import Banner from "../components/Banner";
+import {getBannerOpen} from "./lib/cookies";
 
 export const metadata: Metadata = {
     applicationName: constants.name,
@@ -35,12 +38,16 @@ export const viewport: Viewport = {
 export default async function RootLayout({children}: { children: ReactNode }) {
     const cookieStore = await cookies();
     const theme = cookieStore.get('theme')?.value || 'system';
+    const isBannerOpen = await getBannerOpen() === "true";
 
     return (
         <html lang="en" dir="ltr" className={theme}>
-        <body>
-        <Menu/>
-        {children}
+        <body className="h-screen max-h-screen w-screen max-w-screen dark:bg-darkmode-gray">
+        <MantineProvider defaultColorScheme="auto">
+            <Banner isBannerOpen={isBannerOpen}/>
+            <Menu/>
+            {children}
+        </MantineProvider>
         </body>
         </html>
     );

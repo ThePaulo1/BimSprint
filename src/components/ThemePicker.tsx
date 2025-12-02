@@ -1,29 +1,38 @@
 "use client"
 
-import {useState} from "react";
-import {setTheme} from "../app/lib/cookies";
+import {useMantineColorScheme} from '@mantine/core';
+import cx from 'clsx';
+import {IconMoonFilled, IconSunLowFilled, IconBrightnessFilled} from '@tabler/icons-react';
 
 export type Theme = "light" | "dark" | "system";
 
-export default function ThemePicker({defaultTheme}: { defaultTheme: Theme }) {
-    const [currentTheme, setCurrentTheme] = useState(defaultTheme);
+export default function ThemePicker() {
+    const {colorScheme, setColorScheme} = useMantineColorScheme();
 
-    const toggleTheme = async () => {
-        const nextTheme = getNextTheme()
-        setCurrentTheme(nextTheme)
-        await setTheme(nextTheme === "system" ? window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light" : nextTheme)
-    };
+    const toggleTheme = () => {
+        if (colorScheme === 'light') {
+            setColorScheme('dark');
+        } else if (colorScheme === 'dark') {
+            setColorScheme('auto');
+        } else {
+            setColorScheme('light');
+        }
+    }
 
-    const getNextTheme = (): Theme => {
-        if (currentTheme === "dark") return "light";
-        if (currentTheme === "light") return "system";
-        return "dark";
-    };
-
+    const getIcon = () => {
+        if (colorScheme === 'light') {
+            return <IconMoonFilled/>
+        } else if (colorScheme === 'dark') {
+            return <IconSunLowFilled/>
+        } else {
+            return <IconBrightnessFilled/>
+        }
+    }
 
     return (
-        <button onClick={toggleTheme}>
-            {currentTheme}
+        <button onClick={toggleTheme} className="flex gap-x-3">
+            {getIcon()}
+            <div>{colorScheme}</div>
         </button>
     )
 }
