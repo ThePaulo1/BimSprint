@@ -41,22 +41,7 @@ export default function Metrics() {
     };
 
     return (
-        <div className="flex flex-col h-full relative overflow-hidden">
-            {/* Header */}
-            {/*<header className="flex items-center justify-between px-4 py-4 z-20">*/}
-            {/*    <div className="flex flex-col">*/}
-            {/*        <span className="text-sm font-semibold text-gpt-text">{selectedDeparture.line} nach {selectedDeparture.direction}</span>*/}
-            {/*    </div>*/}
-            {/*    <button*/}
-            {/*        onClick={resetNavigation}*/}
-            {/*        className="p-2 hover:bg-gpt-hover rounded-full text-gpt-textSecondary hover:text-gpt-text transition-colors"*/}
-            {/*    >*/}
-            {/*        <X size={24} strokeWidth={1.5} />*/}
-            {/*    </button>*/}
-            {/*</header>*/}
-
-            {/* Main Visualizer Area (Voice Mode Style) */}
-            <main className="flex-1 flex flex-col items-center justify-center relative z-10 -mt-10">
+            <div className="flex flex-col items-center justify-center h-full overflow-hidden">
 
                 {/* Breathing Orb */}
                 <div className="relative flex items-center justify-center w-96 h-96">
@@ -105,12 +90,6 @@ export default function Metrics() {
                 {/*        </div>*/}
                 {/*    </div>*/}
                 {/*)}*/}
-
-            </main>
-        </div>
-        // <div className="text-2xl">
-        //     {speed} km/h
-        //     <div className="text-gray-500 text-lg">{speedNotRetrieved ? "(Speed is null - not moving enough or no lock)" : ""}</div>
-        // </div>
+            </div>
     )
 }

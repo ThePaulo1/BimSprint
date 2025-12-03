@@ -15,8 +15,8 @@ export default async function Stops({params}: StopProps) {
     const {id} = await params
 
     return (
-        <div className="flex flex-col">
-            {directions.map((direction) => (
+        <div className="flex flex-col p-8 gap-y-4">
+        {directions.map((direction) => (
                 <Link href={"/monitor/" + direction} key={direction}>
                     {direction}
                 </Link>

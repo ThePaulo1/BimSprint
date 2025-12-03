@@ -3,9 +3,8 @@ import type {ReactNode} from "react";
 export default function Status({children}: { children: ReactNode }) {
 
     return (
-        <div className="h-full">
+        <div>
             {children}
-            <div className="italic">Miss</div>
         </div>
     )
 }

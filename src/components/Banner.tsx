@@ -2,7 +2,7 @@
 
 import {useEffect, useState} from "react";
 import {setBannerOpen} from "../app/lib/cookies";
-import {Alert} from "@mantine/core";
+import {CloseButton, Alert} from "@mantine/core";
 
 type BannerProps = {
     label?: string,
@@ -22,25 +22,14 @@ export default function Banner({isBannerOpen}: BannerProps) {
         setOpen(false);
     }
 
-    const handleBannerClick = async () => {
-        console.log("banner clicked")
-    }
-
     return (
         <>
             {open &&
-                <Alert
-                    variant="transparent"
-                    withCloseButton
-                    closeButtonLabel="Dismiss"
-                    onClick={()=>handleBannerClick()}
-                    onClose={() => handleBannerClose()}
-                    className="text-pretty"
-                    classNames={{message: "!text-xs sm:!text-sm", wrapper: "!flex-row-reverse", body: "!flex" }}
-                >
-                    <span className="font-bold">👀 We have an app!</span> Click to download BimSprint here
-                   <div>Laden</div>
-                </Alert>
+                <div className="h-12 flex flex-none justify-around w-full dark:bg-darkmode-gray items-center">
+                    <CloseButton variant="transparent" onClick={handleBannerClose}/>
+                    <div><span className="font-bold">👀 We have an app!</span> Click here to download BimSprint</div>
+                    <div>Laden</div>
+                </div>
             }
         </>
     )

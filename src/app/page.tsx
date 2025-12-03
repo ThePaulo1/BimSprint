@@ -15,7 +15,7 @@ const stops = [
 
 export default function Stops() {
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col p-8 gap-y-4">
             {stops.map((stop) => (
                 <Link href={"stop/" + stop} key={stop}>
                     {stop}

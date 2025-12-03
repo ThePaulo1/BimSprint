@@ -4,10 +4,11 @@ import Link from "next/link";
 
 export default function Menu() {
     return (
-        <div className="flex justify-around ">
-            <Link href={"/"}>{">Bim>>Sprint"}</Link>
-            <StopPicker/>
+        <nav className="flex mx-8">
+            <Link href={"/"} className="flex-1">{">Bim>>Sprint"}</Link>
+            <div className="flex-1 flex justify-end">
             <Settings/>
-        </div>
+            </div>
+        </nav>
     )
 }

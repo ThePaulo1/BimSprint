@@ -9,11 +9,6 @@ export default async function Monitor({params}: MonitorProps) {
     const {id} = await params
 
     return (
-        <>
-            <Status>
-                {id}
                 <Metrics/>
-            </Status>
-        </>
     )
 }
