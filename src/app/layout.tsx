@@ -44,7 +44,7 @@ export default async function RootLayout({children}: { children: ReactNode }) {
         <html lang="en" dir="ltr" className={theme}>
         <body className="w-screen max-w-screen dark:bg-darkmode-gray h-screen max-h-screen flex flex-col gap-y-3">
         <MantineProvider defaultColorScheme="auto">
-            <Banner isBannerOpen={isBannerOpen}/>
+            <Banner isBannerOpenInit={isBannerOpen}/>
             <Menu/>
             {children}
         </MantineProvider>

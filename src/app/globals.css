@@ -7,6 +7,7 @@
     --color-darkmode-soft-white: #ececec;
     --color-darkmode-soft-gray: #b4b4b4;
 
+    --breakpoint-xs: 20rem;
 
     --animate-breathing: breathing 6s ease-in-out infinite;
     --animate-pulse-slow: pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
