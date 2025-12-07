@@ -29,13 +29,12 @@ export default function Banner({isBannerOpenInit}: BannerProps) {
             e.preventDefault();
             setBeforeInstallPrompt(e);
         });
-        console.log(beforeInstallPrompt);
     }, [])
 
     const requiresBanner = () => {
         const isInstalled = window.matchMedia('(display-mode: standalone)').matches
 
-        if (isInstalled || beforeInstallPrompt) {
+        if (isInstalled) {
             return false;
         }
 
@@ -64,7 +63,6 @@ export default function Banner({isBannerOpenInit}: BannerProps) {
     }
 
     const handleBannerClick = () => {
-        console.log(beforeInstallPrompt)
         if (beforeInstallPrompt) {
             // @ts-ignore
             beforeInstallPrompt.prompt()
@@ -76,7 +74,7 @@ export default function Banner({isBannerOpenInit}: BannerProps) {
     return (
         <>
             {isBannerOpen &&
-                <div
+                <aside
                     className="flex w-full h-20 gap-x-2 items-center justify-between px-3 transition-all dark:bg-darkmode-gray">
                     <CloseButton className="w-1/3" variant="transparent" onClick={handleBannerClose}/>
 
@@ -100,22 +98,11 @@ export default function Banner({isBannerOpenInit}: BannerProps) {
                         size="md"
                         radius="xl"
                         onClick={handleBannerClick}
-                        gradient={{ from: "#4b6cb7 10%", to: "#253b67 90%", deg: 45 }}
+                        gradient={{from: "#4b6cb7 10%", to: "#253b67 90%", deg: 45}}
                     >
                         GET
                     </Button>
-                </div>
-                // <aside className="h-14 justify-center   items-center flex dark:bg-darkmode-gray p-2"
-                //        onClick={handleBannerClick}
-                // >
-                //     <div className="overflow-clip flex">
-                //         <CloseButton className="w-1/3 flex-auto" variant="transparent" onClick={handleBannerClose}/>
-                //         <div className="w-2/3 flex-auto"><span className="font-bold">👀 We have an app!</span> Click here
-                //             to download BimSprint
-                //         </div>
-                //         <div className="w-1/3 flex-auto">Laden</div>
-                //     </div>
-                // </aside>
+                </aside>
             }
             <Modal opened={isModalOpen} onClose={close} title="Installation" classNames={{body: "my-4"}} radius={16}>
                 <ol className="space-y-4 list-decimal list-outside pl-6">
