@@ -31,5 +31,8 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
             },
         ],
         orientation: "any",
+        launch_handler: {
+            client_mode: "focus-existing"
+        }
     };
 }
