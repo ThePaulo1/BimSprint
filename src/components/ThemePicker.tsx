@@ -1,10 +1,7 @@
 "use client"
 
 import {useMantineColorScheme} from '@mantine/core';
-import cx from 'clsx';
 import {IconMoonFilled, IconSunLowFilled, IconBrightnessFilled} from '@tabler/icons-react';
-
-export type Theme = "light" | "dark" | "system";
 
 export default function ThemePicker() {
     const {colorScheme, setColorScheme} = useMantineColorScheme();

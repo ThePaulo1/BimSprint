@@ -7,9 +7,9 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
         short_name: constants.shortName,
         description: constants.description,
         start_url: "/",
+        id: "/",
         display: "standalone",
-        background_color: "#ffffff",
-        theme_color: "#ffffff",
+        categories: ["lifestyle", "utilities"],
         icons: [
             {
                 src: "/apple-touch-icon.png",
@@ -32,7 +32,21 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
         ],
         orientation: "any",
         launch_handler: {
-            client_mode: "focus-existing"
-        }
+            client_mode: "navigate-existing"
+        },
+        shortcuts: [
+            {
+                "name": "Today's agenda",
+                "short_name": "Agenda",
+                "description": "View your agenda for today",
+                "url": "/today",
+                "icons": [
+                    {
+                        "src": "android-chrome-192x192.png",
+                        "sizes": "192x192"
+                    }
+                ]
+            }
+        ]
     };
 }

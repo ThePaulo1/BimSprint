@@ -5,6 +5,9 @@ import {execSync} from "child_process";
 const nextConfig: NextConfig = {
     reactStrictMode: true,
     output: "standalone",
+    experimental: {
+        viewTransition: true,
+    },
 };
 
 const withSerwist = withSerwistInit({
