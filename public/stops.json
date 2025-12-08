@@ -1,20 +1,37 @@
 {
-  "diva": {
-    "name": "Schottentor",
-    "stops": [
-      {
-        "stopId": "bla",
-        "lineId":
-      }
-    ],
-    "lines": [
-      "lineId": {
-
-      }
-    ]
-  },
-  "stopId": {
-
-  },
-  "lines"
+  "stops": [
+    {
+      "id": "stephansplatz",
+      "name": "Stephansplatz",
+      "coords": [48.2085, 16.3731],
+      "lines": [
+        { "name": "U1", "towards": "Oberlaa", "rbl": "4114" },
+        { "name": "U1", "towards": "Leopoldau", "rbl": "4103" },
+        { "name": "U3", "towards": "Ottakring", "rbl": "4122" },
+        { "name": "U3", "towards": "Simmering", "rbl": "4137" }
+      ]
+    },
+    {
+      "id": "boerse",
+      "name": "Börse",
+      "coords": [48.2148, 16.3645],
+      "lines": [
+        { "name": "D", "towards": "Nußdorf", "rbl": "1182" },
+        { "name": "D", "towards": "Hauptbahnhof", "rbl": "1191" },
+        { "name": "1", "towards": "Prater Hauptallee", "rbl": "1183" },
+        { "name": "71", "towards": "Kaiserebersdorf", "rbl": "1203" }
+      ]
+    },
+    {
+      "id": "oper-karlsplatz",
+      "name": "Oper, Karlsplatz U",
+      "coords": [48.2023, 16.3692],
+      "lines": [
+        { "name": "U1", "towards": "Oberlaa", "rbl": "4115" },
+        { "name": "U4", "towards": "Heiligenstadt", "rbl": "4409" },
+        { "name": "1", "towards": "Stefan-Fadinger-Platz", "rbl": "1244" },
+        { "name": "D", "towards": "Nußdorf", "rbl": "1242" }
+      ]
+    }
+  ]
 }
