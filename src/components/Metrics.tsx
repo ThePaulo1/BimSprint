@@ -1,14 +1,18 @@
 "use client"
 
 import {useEffect, useState} from "react";
+import distance from "@turf/distance";
 
 export default function Metrics() {
     const [speed, setSpeed] = useState(0);
     const [speedNotRetrieved, setSpeedNotRetrieved] = useState(false);
-    const [distance, setDistance] = useState(0);
+    const [distanceToStop, setDistanceToStop] = useState(0);
     const [minutesLeft, setMinutesLeft] = useState(0);
     const [activeColor, setActiveColor] = useState("yellow");
     const [statusText, setStatusText] = useState("Beeilung");
+    const [userLat, setUserLat] = useState(0);
+    const [userLong, setUserLong] = useState(0);
+    const santa = [66.543966, 25.845279]
 
     useEffect(() => {
         const options = {
@@ -22,12 +26,9 @@ export default function Metrics() {
         return () => navigator.geolocation.clearWatch(speedObserver)
     }, [])
 
-    useEffect(() => {
-        console.log(speed);
-    }, [speed]);
-
     const parsePosition = (position: GeolocationPosition) => {
         const currentSpeed = position.coords.speed;
+        setDistanceToStop(distance([position.coords.latitude, position.coords.longitude], santa, {units: "meters"}))
 
         if (currentSpeed === null) {
             console.log("Speed is null (not moving enough or no lock)");
@@ -56,7 +57,7 @@ export default function Metrics() {
                     >
                         {/* Distance in center of orb */}
                         <div className="text-center z-20 text-black/80 dark:text-black/80 font-bold mix-blend-multiply flex flex-col items-center">
-                            <div className="text-5xl leading-none tracking-tighter mb-1">{Math.round(distance)}</div>
+                            <div className="text-5xl leading-none tracking-tighter mb-1">{Math.round(distanceToStop)}</div>
                             <div className="text-xs uppercase font-bold tracking-wide opacity-80">Meter</div>
                         </div>
                     </div>
