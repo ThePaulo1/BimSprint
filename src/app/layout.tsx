@@ -3,11 +3,10 @@ import type {ReactNode} from "react";
 import "./globals.css";
 import {constants} from "../constants";
 import Menu from "../components/Menu";
-import {cookies} from "next/headers";
 import '@mantine/core/styles.css';
-import {ColorSchemeScript, MantineProvider, mantineHtmlProps} from '@mantine/core';
+import {MantineProvider} from '@mantine/core';
 import Banner from "../components/Banner";
-import {getBannerOpen} from "./lib/cookies";
+import {getBannerOpen, getTheme} from "./lib/cookies";
 
 export const metadata: Metadata = {
     applicationName: constants.name,
@@ -31,20 +30,22 @@ export const metadata: Metadata = {
     },
 };
 
-export const viewport: Viewport = {
-    themeColor: [
-        { media: '(prefers-color-scheme: light)', color: "white" },
-        { media: '(prefers-color-scheme: dark)', color: "#212121" },
-    ],
-};
+export async function generateViewport(): Promise<Viewport> {
+    const themeColor = await getTheme() ?? [
+        {media: "(prefers-color-scheme: dark)", color: "#212121"},
+        {media: "(prefers-color-scheme: light)", color: "#ffffff"}
+    ]
+
+    return {
+        themeColor: themeColor,
+    }
+}
 
 export default async function RootLayout({children}: { children: ReactNode }) {
-    const cookieStore = await cookies();
-    const theme = cookieStore.get('theme')?.value || 'system';
     const isBannerOpen = await getBannerOpen() === "true";
 
     return (
-        <html lang="en" dir="ltr" className={theme}>
+        <html lang="en" dir="ltr">
         <body className="w-screen max-w-screen dark:bg-darkmode-gray h-screen max-h-screen flex flex-col gap-y-3">
         <MantineProvider defaultColorScheme="auto">
             <Banner isBannerOpenInit={isBannerOpen}/>

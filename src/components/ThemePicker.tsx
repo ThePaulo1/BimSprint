@@ -1,17 +1,23 @@
 "use client"
 
 import {useMantineColorScheme} from '@mantine/core';
-import {IconMoonFilled, IconSunLowFilled, IconBrightnessFilled} from '@tabler/icons-react';
+import {IconBrightnessFilled, IconMoonFilled, IconSunLowFilled} from '@tabler/icons-react';
+import {setTheme} from "../app/lib/cookies";
 
 export default function ThemePicker() {
     const {colorScheme, setColorScheme} = useMantineColorScheme();
 
-    const toggleTheme = () => {
+    const toggleTheme = async () => {
         if (colorScheme === 'light') {
+            const darkThemeColor = window.getComputedStyle(document.body).getPropertyValue('--color-darkmode-gray');
+            await setTheme(darkThemeColor);
             setColorScheme('dark');
         } else if (colorScheme === 'dark') {
+            await setTheme("");
             setColorScheme('auto');
         } else {
+            const lightThemeColor = window.getComputedStyle(document.body).getPropertyValue('--color-lightmode-white');
+            await setTheme(lightThemeColor);
             setColorScheme('light');
         }
     }

@@ -13,3 +13,15 @@ export async function setBannerOpen() {
         sameSite: "strict",
     })
 }
+
+export async function setTheme(theme: string) {
+    (await cookies()).set({
+        name: 'theme',
+        value: theme,
+        maxAge: 60 * 60 * 24 * 365 * 10,
+        sameSite: "strict",
+    })
+}
+
+export const getTheme = async () =>
+    (await cookies()).get("theme")?.value
