@@ -1,6 +1,6 @@
-import { defaultCache } from "@serwist/next/worker";
-import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
-import { Serwist } from "serwist";
+import {defaultCache} from "@serwist/next/worker";
+import type {PrecacheEntry, SerwistGlobalConfig} from "serwist";
+import {Serwist} from "serwist";
 
 declare global {
     interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -19,19 +19,16 @@ const serwist = new Serwist({
     clientsClaim: true,
     navigationPreload: false,
     runtimeCaching: defaultCache,
+    fallbacks: {
+        entries: [
+            {
+                url: "/offline",
+                matcher({request}) {
+                    return request.destination === "document";
+                },
+            },
+        ],
+    }
 });
-
-const urlsToPrecache = ["/"];
-
-self.addEventListener("install", async (event) => {
-    await Promise.all(
-        urlsToPrecache.map((entry) => {
-            return serwist.handleRequest({ request: new Request(entry), event });
-        }),
-    );
-
-    await serwist.handleInstall(event);
-});
-
 
 serwist.addEventListeners();

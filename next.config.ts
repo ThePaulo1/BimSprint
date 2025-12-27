@@ -1,6 +1,5 @@
 import type {NextConfig} from "next";
 import withSerwistInit from "@serwist/next";
-import {execSync} from "child_process";
 
 const nextConfig: NextConfig = {
     reactStrictMode: true,
@@ -13,9 +12,8 @@ const nextConfig: NextConfig = {
 const withSerwist = withSerwistInit({
     swSrc: "src/sw.ts",
     swDest: "public/sw.js",
-    disable: process.env.NODE_ENV === "development",
-    reloadOnOnline: false,
-    scope: "/",
+    reloadOnOnline: true,
+    additionalPrecacheEntries: [{ url: "/offline", revision: crypto.randomUUID() }],
 });
 
 
