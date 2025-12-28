@@ -12,7 +12,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
         categories: ["lifestyle", "utilities"],
         icons: [
             {
-                src: "/apple-touch-icon.png",
+                src: "/icons/apple-touch-icon.png",
                 sizes: "180x180",
                 type: "image/png",
                 purpose: "maskable",
@@ -34,19 +34,19 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
         launch_handler: {
             client_mode: "navigate-existing"
         },
-        shortcuts: [
-            {
-                "name": "Today's agenda",
-                "short_name": "Agenda",
-                "description": "View your agenda for today",
-                "url": "/today",
-                "icons": [
-                    {
-                        "src": "android-chrome-192x192.png",
-                        "sizes": "192x192"
-                    }
-                ]
-            }
-        ]
+        // shortcuts: [
+        //     {
+        //         "name": "Today's agenda",
+        //         "short_name": "Agenda",
+        //         "description": "View your agenda for today",
+        //         "url": "/today",
+        //         "icons": [
+        //             {
+        //                 "src": "android-chrome-192x192.png",
+        //                 "sizes": "192x192"
+        //             }
+        //         ]
+        //     }
+        // ]
     };
 }

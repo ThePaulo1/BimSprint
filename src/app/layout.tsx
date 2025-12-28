@@ -4,9 +4,10 @@ import "./globals.css";
 import {constants} from "../constants";
 import Menu from "../components/Menu";
 import '@mantine/core/styles.css';
-import {MantineProvider} from '@mantine/core';
+import {ColorSchemeScript, mantineHtmlProps, MantineProvider} from '@mantine/core';
 import Banner from "../components/Banner";
 import {getBannerOpen, getTheme} from "./lib/cookies";
+import OfflineHint from "../components/OfflineHint";
 
 export const metadata: Metadata = {
     applicationName: constants.name,
@@ -45,10 +46,16 @@ export default async function RootLayout({children}: { children: ReactNode }) {
     const isBannerOpen = await getBannerOpen() === "true";
 
     return (
-        <html lang="en" dir="ltr">
+        <html lang="en" dir="ltr" {...mantineHtmlProps}>
+        <head>
+            <ColorSchemeScript />
+        </head>
         <body className="w-screen max-w-screen dark:bg-darkmode-gray h-screen max-h-screen flex flex-col gap-y-3">
         <MantineProvider defaultColorScheme="auto">
-            <Banner isBannerOpenInit={isBannerOpen}/>
+            <div>
+                <Banner isBannerOpenInit={isBannerOpen}/>
+                <OfflineHint/>
+            </div>
             <Menu/>
             {children}
         </MantineProvider>
