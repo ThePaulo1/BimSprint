@@ -3,11 +3,13 @@
 import NotFound from "../../components/NotFound";
 import {useEffect, useState} from "react";
 import {IconCloudOff} from "@tabler/icons-react";
+import {useRouter} from "next/navigation";
 
 export default function Offline() {
     const [isOnline, setIsOnline] = useState(true);
+    const router = useRouter()
 
-    const handleOnline = () => setIsOnline(true);
+    const handleOnline = () => router.push('/');
     const handleOffline = () => setIsOnline(false);
 
     useEffect(() => {
