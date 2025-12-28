@@ -27,19 +27,6 @@ const serwist = new Serwist({
     navigationPreload: false,
     runtimeCaching: [
         {
-            matcher: /\/_next\/static.+\.js$/i,
-            handler: new CacheFirst({
-                cacheName: "next-static-js-assets",
-                plugins: [
-                    new ExpirationPlugin({
-                        maxEntries: 64,
-                        maxAgeSeconds: 24 * 60 * 60, // 24 hours
-                        maxAgeFrom: "last-used",
-                    }),
-                ],
-            }),
-        },
-        {
             matcher({request}) {
                 return request.mode === "navigate";
             },
@@ -51,8 +38,7 @@ const serwist = new Serwist({
                 cacheName: "static-image-assets",
                 plugins: [
                     new ExpirationPlugin({
-                        maxEntries: 64,
-                        maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+                        maxEntries: 12,
                         maxAgeFrom: "last-used",
                     }),
                 ],
