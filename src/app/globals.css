@@ -13,6 +13,7 @@
     --color-wl-light-gray: #6d6f74;
 
     --breakpoint-xs: 20rem;
+    --breakpoint-xsm: 30rem;
 
     --animate-breathing: breathing 6s ease-in-out infinite;
     --animate-pulse-slow: pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;

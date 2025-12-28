@@ -14,7 +14,7 @@ export default function NotFound({
                                      code = 404
                                  }: NotFoundProps) {
     return (
-        <div className="max-w-6xl mx-auto px-4 py-12 selection:bg-wl-red selection:text-white">
+        <div className="max-w-6xl w-full mx-auto px-4 py-12 selection:bg-wl-red selection:text-white">
             <div className="mb-12">
                 <h1 className="text-wl-red text-4xl font-bold mb-6">
                     Betriebsinformation
@@ -24,7 +24,7 @@ export default function NotFound({
                 </p>
             </div>
 
-            <div className="flex flex-col xs:flex-row md:items-center justify-between gap-4 mb-6">
+            <div className="flex flex-col xsm:flex-row md:items-center justify-between gap-4 mb-6">
                 <h2 className="text-wl-red text-3xl font-bold">
                     Betriebsinfo
                 </h2>
