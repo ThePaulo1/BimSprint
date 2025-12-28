@@ -1,5 +1,12 @@
 import {defaultCache} from "@serwist/next/worker";
-import type {PrecacheEntry, SerwistGlobalConfig} from "serwist";
+import {
+    CacheFirst,
+    ExpirationPlugin,
+    NetworkOnly,
+    PrecacheEntry,
+    SerwistGlobalConfig,
+    StaleWhileRevalidate
+} from "serwist";
 import {Serwist} from "serwist";
 
 declare global {
@@ -18,7 +25,40 @@ const serwist = new Serwist({
     skipWaiting: true,
     clientsClaim: true,
     navigationPreload: false,
-    runtimeCaching: defaultCache,
+    runtimeCaching: [
+        {
+            matcher: /\/_next\/static.+\.js$/i,
+            handler: new CacheFirst({
+                cacheName: "next-static-js-assets",
+                plugins: [
+                    new ExpirationPlugin({
+                        maxEntries: 64,
+                        maxAgeSeconds: 24 * 60 * 60, // 24 hours
+                        maxAgeFrom: "last-used",
+                    }),
+                ],
+            }),
+        },
+        {
+            matcher({request}) {
+                return request.mode === "navigate";
+            },
+            handler: new NetworkOnly(),
+        },
+        {
+            matcher: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
+            handler: new StaleWhileRevalidate({
+                cacheName: "static-image-assets",
+                plugins: [
+                    new ExpirationPlugin({
+                        maxEntries: 64,
+                        maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+                        maxAgeFrom: "last-used",
+                    }),
+                ],
+            }),
+        },
+    ],
     fallbacks: {
         entries: [
             {

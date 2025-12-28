@@ -1,10 +1,8 @@
 "use client"
 
-import NotFound from "../../components/NotFound";
 import {useEffect, useState} from "react";
-import {IconCloudOff} from "@tabler/icons-react";
 
-export default function Offline() {
+export default function OfflineHint() {
     const [isOnline, setIsOnline] = useState(true);
 
     const handleOnline = () => setIsOnline(true);
@@ -25,18 +23,13 @@ export default function Offline() {
         };
     }, [])
 
-    useEffect(() => {
-        console.log(isOnline);
-    }, [isOnline]);
-
-    if (isOnline) {
-        return <NotFound/>
-    }
-
-    return <NotFound
-        icon={<IconCloudOff/>}
-        code={200}
-        title={"Nächster Halt: Funkloch!"}
-        message={"Heast, ohne Netz fahrt de Eisenbahn net. Irgendwer hot de Leitung g'fladert oder du bist grod im tiafsten Tunnel stecken bliebn. Sobald dei Verbindung wieder hinhaut, fahr' ma weiter."}
-    />
+    return (
+        <>
+            {!isOnline &&
+                <aside className="text-center px-2 py-4 text-red-600 bg-black/40 w-full text-lg">
+                    🚨 Störung im Betriebsablauf – wir bitten um unbestimmte Geduld
+                </aside>
+            }
+        </>
+    )
 }

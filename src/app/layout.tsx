@@ -7,6 +7,7 @@ import '@mantine/core/styles.css';
 import {ColorSchemeScript, mantineHtmlProps, MantineProvider} from '@mantine/core';
 import Banner from "../components/Banner";
 import {getBannerOpen, getTheme} from "./lib/cookies";
+import OfflineHint from "../components/OfflineHint";
 
 export const metadata: Metadata = {
     applicationName: constants.name,
@@ -51,7 +52,10 @@ export default async function RootLayout({children}: { children: ReactNode }) {
         </head>
         <body className="w-screen max-w-screen dark:bg-darkmode-gray h-screen max-h-screen flex flex-col gap-y-3">
         <MantineProvider defaultColorScheme="auto">
-            <Banner isBannerOpenInit={isBannerOpen}/>
+            <div>
+                <Banner isBannerOpenInit={isBannerOpen}/>
+                <OfflineHint/>
+            </div>
             <Menu/>
             {children}
         </MantineProvider>
