@@ -7,6 +7,10 @@
     --color-darkmode-soft-white: #ececec;
     --color-darkmode-soft-gray: #b4b4b4;
     --color-lightmode-white: #ffffff;
+    --color-wl-red: #E30613;
+    --color-wl-gray: #f5f5f5;
+    --color-wl-dark-gray: #31333a;
+    --color-wl-light-gray: #6d6f74;
 
     --breakpoint-xs: 20rem;
 
