@@ -21,7 +21,9 @@
     "@tailwindcss/postcss": "^4.1.17",
     "@turf/distance": "^7.3.1",
     "clsx": "^2.1.1",
+    "csv-parse": "^6.1.0",
     "next": "^16.0.7",
+    "node-fetch": "^3.3.2",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "serwist": "9.2.1",
@@ -36,6 +38,7 @@
     "postcss": "^8.5.6",
     "postcss-preset-mantine": "^1.18.0",
     "postcss-simple-vars": "^7.0.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "pnpm": {

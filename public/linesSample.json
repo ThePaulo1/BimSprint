@@ -1,37 +1,17 @@
 {
-    "60200945": {
-        "stop": {
-            "name": "Schottentor",
-            "location": {
-                "lat": 48.2067,
-                "lon": 16.3667
-            }
-        },
-
-        "lines": {
-            "302": {
-                "lineText" : "U2",
-                "directions": {
-                    "1": {
-                        "end": "Karlsplatz",
-                        "lat": 48.20715,
-                        "lon": 16.36695
-                    },
-                    "2": {
-                        "end": "Seestadt",
-                        "lat": 48.20620,
-                        "lon": 16.36610
-                    }
-                }
+    "lines" : [
+        {
+            "id": 301,
+            "LineText" : "U1",
+            "directions": [
+            {
+                "num": 1,
+                "endstop" : "Stephan-Fadinger-Platz"
             },
-            "137": {
-                "directions": {
-                    "1" : {
-                        "lat": 48.20890,
-                        "lon": 16.36520
-                    }
-                }
-            }
-        }
-    }
+            {
+                "num": 2,
+                "endstop" : "Prater-Haupt-Allee"
+            }]   
+        } 
+    ]
 }
