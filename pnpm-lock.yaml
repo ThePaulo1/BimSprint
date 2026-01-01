@@ -9,13 +9,13 @@ importers:
   .:
     dependencies:
       '@mantine/core':
-        specifier: ^8.3.9
+        specifier: ^8.3.10
         version: 8.3.10(@mantine/hooks@8.3.10(react@19.2.3))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
-        specifier: ^8.3.9
+        specifier: ^8.3.10
         version: 8.3.10(react@19.2.3)
       '@serwist/next':
-        specifier: ^9.2.3
+        specifier: ^9.4.2
         version: 9.4.2(next@16.1.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3)(typescript@5.9.3)
       '@tabler/icons-react':
         specifier: ^3.35.0
@@ -30,24 +30,24 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       next:
-        specifier: ^16.0.7
+        specifier: ^16.1.1
         version: 16.1.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       serwist:
-        specifier: 9.2.1
-        version: 9.2.1(typescript@5.9.3)
+        specifier: 9.4.2
+        version: 9.4.2(typescript@5.9.3)
       tailwindcss:
-        specifier: ^4.1.17
+        specifier: ^4.1.18
         version: 4.1.18
     devDependencies:
       '@types/node':
-        specifier: ^24.10.1
-        version: 24.10.4
+        specifier: ^25.0.3
+        version: 25.0.3
       '@types/react':
         specifier: ^19.2.7
         version: 19.2.7
@@ -641,8 +641,8 @@ packages:
   '@types/geojson@7946.0.16':
     resolution: {integrity: sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==, tarball: https://registry.npmjs.org/@types/geojson/-/geojson-7946.0.16.tgz}
 
-  '@types/node@24.10.4':
-    resolution: {integrity: sha512-vnDVpYPMzs4wunl27jHrfmwojOGKya0xyM3sH+UE5iv5uPS6vX7UIoh6m+vQc5LGBq52HBKPIn/zcSZVzeDEZg==, tarball: https://registry.npmjs.org/@types/node/-/node-24.10.4.tgz}
+  '@types/node@25.0.3':
+    resolution: {integrity: sha512-W609buLVRVmeW693xKfzHeIV6nJGGz98uCPfeXI1ELMLXVeKYZ9m15fAMSaUPBHYLGFsVRcMmSCksQOrZV9BYA==, tarball: https://registry.npmjs.org/@types/node/-/node-25.0.3.tgz}
 
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==, tarball: https://registry.npmjs.org/@types/react-dom/-/react-dom-19.2.3.tgz}
@@ -1043,14 +1043,6 @@ packages:
     resolution: {integrity: sha512-SdsKMrI9TdgjdweUSR9MweHA4EJ8YxHn8DFaDisvhVlUOe4BF1tLD7GAj0lIqWVl+dPb/rExr0Btby5loQm20Q==, tarball: https://registry.npmjs.org/semver/-/semver-7.7.3.tgz}
     engines: {node: '>=10'}
     hasBin: true
-
-  serwist@9.2.1:
-    resolution: {integrity: sha512-icp1GQB3h9q1OqYeSw+iTTY0OZ3io+fzNG0Ot3p6Xe5DEZlSRn61FmGx9mq76q0CeMtZYBmmuw4tyIS1O76Lbw==, tarball: https://registry.npmjs.org/serwist/-/serwist-9.2.1.tgz}
-    peerDependencies:
-      typescript: '>=5.0.0'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
 
   serwist@9.4.2:
     resolution: {integrity: sha512-IHbZjUTAOdUstD/ZWRxgG4aCaxyZtQVLxkvVIGHJh3u0+uIMXweBSDaOOXZCP8luXYdbpfb5AdSU8oQiFKlHCQ==, tarball: https://registry.npmjs.org/serwist/-/serwist-9.4.2.tgz}
@@ -1659,7 +1651,7 @@ snapshots:
 
   '@types/geojson@7946.0.16': {}
 
-  '@types/node@24.10.4':
+  '@types/node@25.0.3':
     dependencies:
       undici-types: 7.16.0
 
@@ -2017,12 +2009,6 @@ snapshots:
   scheduler@0.27.0: {}
 
   semver@7.7.3: {}
-
-  serwist@9.2.1(typescript@5.9.3):
-    dependencies:
-      idb: 8.0.3
-    optionalDependencies:
-      typescript: 5.9.3
 
   serwist@9.4.2(typescript@5.9.3):
     dependencies:
