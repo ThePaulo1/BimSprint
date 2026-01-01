@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
+    "prebuild": "node src/app/lib/staticFileDownloader.ts",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "next lint"
