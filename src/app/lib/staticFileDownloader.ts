@@ -1,7 +1,9 @@
-import fetch from "node-fetch";
 import { parse } from "csv-parse/sync";
 import * as fs from "fs";
+import next from "next";
 
+
+// These names are to stay since they are given as such by the Wiener Linien.
 type Haltepunkt = {
     StopID: string,
     DIVA: string,
@@ -36,12 +38,15 @@ type Linie = {
     Realtime: string,
     MeansOfTransport: string
 }
+
 type CsvDataMap = {
     haltepunkte: Haltepunkt[];
     haltestellen: Haltestelle[];
     fahrwegverlaeufe: Fahrwegverlauf[];
     linien: Linie[];
 };
+
+
 type Location = {
     lat: number;
     lon: number;
@@ -66,19 +71,19 @@ type DirectionEndstop = {
     endstop: string;
 }
 
-type Stop = {
+type StopDetails = {
     name: string;
     location: Location;
 };
-type StopEntry = {
+type Stop = {
     diva: string;
-    stop: Stop;
+    stop: StopDetails;
     lines: Line[];
 };
-type StopsCollection = {
-    stops: StopEntry[];
+type Stops = {
+    stops: Stop[];
 };
-type LinesCollection = {
+type Lines = {
     lines: LineEndstop[];
 }
 type temp = {
@@ -87,15 +92,18 @@ type temp = {
 }
 
 
-async function downloadCSV(url: string): Promise<string> {
-  const response = await fetch(url);
+export async function downloadCSV(url: string): Promise<string> {
+  const response = await fetch(url, {
+    cache: "no-store" // prevents Next from caching the    CSV
+  });
 
   if (!response.ok) {
-    throw new Error(`Failed to download CSV: ${response.statusText}`);
+    throw new Error(`Failed to download CSV: ${response.status} ${response.statusText}`);
   }
 
-  return await response.text();
+  return response.text();
 }
+
 
 function csvToJson(csvText: string) {
 
@@ -113,77 +121,77 @@ function csvToJson(csvText: string) {
 }
 
 function stops(dataStore: CsvDataMap){
-    const stopsCollection: StopsCollection = {
+    const stopsCollection: Stops = {
         stops: []
     };
 
 
-    dataStore.haltestellen.forEach(hs => {
-        let stop: StopEntry = {
-            diva: hs.DIVA,
+    dataStore.haltestellen.forEach(haltestelle => {
+        let stop: Stop = {
+            diva: haltestelle.DIVA,
             stop: {
-                name: hs.PlatformText,
+                name: haltestelle.PlatformText,
                 location: {
-                    lat: Number(hs.Latitude),
-                    lon: Number(hs.Latitude)
+                    lat: Number(haltestelle.Latitude),
+                    lon: Number(haltestelle.Latitude)
                 }
             },
             lines: []
         }
 
         const temp: temp[] = [];
-        dataStore.haltepunkte.forEach(hp => {
-            if(hs.DIVA == hp.DIVA){
+        dataStore.haltepunkte.forEach(haltepunkte => {
+            if(haltestelle.DIVA == haltepunkte.DIVA){
                 temp.push(
                     {
-                        stopID : hp.StopID, 
+                        stopID : haltepunkte.StopID, 
                         location: {
-                            lat: Number(hp.Latitude), 
-                            lon: Number(hp.Longitude)
+                            lat: Number(haltepunkte.Latitude), 
+                            lon: Number(haltepunkte.Longitude)
                         }
                     }
                 );
             }
         });
 
-        dataStore.fahrwegverlaeufe.forEach(fwv => {
+        dataStore.fahrwegverlaeufe.forEach(fahrwegverlauf => {
         
-            const stopFromTemp = temp.find(item => item.stopID === fwv.StopID);
+            const stopFromTemp = temp.find(item => item.stopID === fahrwegverlauf.StopID);
             if (!stopFromTemp) return;
 
 
-            let line = stop.lines.find(l => l.lineID === fwv.LineID);
+            let lineTest = stop.lines.find(line => line.lineID === fahrwegverlauf.LineID);
 
             // if line does NOT exist → create it
-            if (!line) {
+            if (!lineTest) {
                 let lineText: string | undefined;
 
                 for (const linie of dataStore.linien) {
-                    if (linie.LineID === fwv.LineID) {
+                    if (linie.LineID === fahrwegverlauf.LineID) {
                         lineText = linie.LineText;
                         break;
                     }
                 }
 
-                line = {
-                    lineID: fwv.LineID,
+                lineTest = {
+                    lineID: fahrwegverlauf.LineID,
                     lineText,
                     directions: []
                 };
 
-                stop.lines.push(line);
+                stop.lines.push(lineTest);
 
             }
 
             // line already exists here (found or created)
 
-            const directionExists = line.directions.some(
-                d => d.num === fwv.Direction
+            const directionExists = lineTest.directions.some(
+                d => d.num === fahrwegverlauf.Direction
             );
 
             if (!directionExists) {
-                line.directions.push({
-                    num: fwv.Direction,
+                lineTest.directions.push({
+                    num: fahrwegverlauf.Direction,
                     location: stopFromTemp.location
                 });
             }
@@ -207,14 +215,14 @@ function stops(dataStore: CsvDataMap){
 
     fs.writeFileSync(
         "./public/stops.json",
-        JSON.stringify(data, null, 4),
+        JSON.stringify(data, null, 0),
         "utf-8"
     );
 }
 
 function lines(dataStore: CsvDataMap){
 
-    let linesCollection: LinesCollection = {
+    let linesCollection: Lines = {
         lines: []
     }
 
@@ -241,19 +249,15 @@ function lines(dataStore: CsvDataMap){
             hpFill = dataStore.haltepunkte.find(line => line.StopID === maxItem.StopID)?.StopText; 
 
             if(ltTextFill == undefined || hpFill == undefined){
-                console.log(ltTextFill);
-                console.log(hpFill);
                 return;
             }
 
 
             if(linesCollection.lines.some(line => line.lineID === element.LineID)){
-                console.log("found a line");
                 let line = linesCollection.lines.find(line => line.lineID === element.LineID);
                 
                 
                 if(line == undefined){
-                    console.log("undefined");
                     return;
                 } 
                 
@@ -283,7 +287,7 @@ function lines(dataStore: CsvDataMap){
 
     fs.writeFileSync(
         "./public/lines.json",
-        JSON.stringify(data, null, 4),
+        JSON.stringify(data, null, 0),
         "utf-8"
     );
 }
