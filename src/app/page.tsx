@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { IconMapPin, IconChevronRight } from "@tabler/icons-react";
 
 const stops = [
     "Stephansplatz", "Börse", "Lassallestraße", "Hauptbahnhof S U",
@@ -8,25 +9,27 @@ const stops = [
 
 export default function Stops() {
     return (
-        <main className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 sm:p-8 transition-colors duration-300">
-            <div className="max-w-md mx-auto">
-                <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2">Stationen</h1>
-                <p className="text-slate-500 dark:text-slate-400 mb-8">Wählen Sie Ihre Haltestelle aus</p>
+        <main className="h-screen flex flex-col bg-white dark:bg-[#121212] text-slate-900 dark:text-slate-100 overflow-hidden">
+            <header className="p-6 pb-2">
+                <h1 className="text-3xl font-extrabold tracking-tight">Stationen</h1>
+                <p className="text-slate-500 dark:text-slate-400">Wähle eine Haltestelle</p>
+            </header>
 
-                <div className="grid gap-3">
-                    {stops.map((stop) => (
-                        <Link
-                            key={stop}
-                            href={`/stop/${encodeURIComponent(stop)}`}
-                            className="flex items-center justify-between p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm hover:border-blue-500 dark:hover:border-blue-400 transition-all active:scale-[0.98]"
-                        >
-                            <span className="font-semibold text-slate-700 dark:text-slate-200">{stop}</span>
-                            <svg className="w-5 h-5 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="9 5l7 7-7 7" />
-                            </svg>
-                        </Link>
-                    ))}
-                </div>
+            {/* Scrollbarer Bereich */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                {stops.map((stop) => (
+                    <Link
+                        key={stop}
+                        href={`/stop/${encodeURIComponent(stop)}`}
+                        className="flex items-center justify-between p-4 bg-slate-50 dark:bg-[#1e1e1e] border border-slate-200 dark:border-[#2e2e2e] rounded-2xl hover:bg-slate-100 dark:hover:bg-[#252525] transition-all active:scale-[0.98]"
+                    >
+                        <div className="flex items-center gap-3">
+                            <IconMapPin size={20} className="text-blue-600 dark:text-blue-500" />
+                            <span className="font-semibold">{stop}</span>
+                        </div>
+                        <IconChevronRight size={20} className="text-slate-400" />
+                    </Link>
+                ))}
             </div>
         </main>
     );
