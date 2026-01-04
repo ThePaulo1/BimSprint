@@ -48,16 +48,20 @@ export default async function RootLayout({children}: { children: ReactNode }) {
     return (
         <html lang="en" dir="ltr" {...mantineHtmlProps}>
         <head>
-            <ColorSchemeScript />
+            <ColorSchemeScript/>
         </head>
-        <body className="w-screen max-w-screen dark:bg-darkmode-gray h-screen max-h-screen flex flex-col gap-y-3">
+        <body className="w-screen max-w-screen dark:bg-darkmode-gray h-dvh max-h-dvh">
         <MantineProvider defaultColorScheme="auto">
-            <div>
+            <div className="flex flex-col gap-y-3 max-h-full h-dvh">
                 <Banner isBannerOpenInit={isBannerOpen}/>
                 <OfflineHint/>
+                <Menu/>
+                <div className="flex justify-center flex-1 min-h-0">
+                    <main className="max-w-4xl h-full w-full max-h-full">
+                        {children}
+                    </main>
+                </div>
             </div>
-            <Menu/>
-            {children}
         </MantineProvider>
         </body>
         </html>
