@@ -1,130 +1,50 @@
-import { parse } from "csv-parse/sync";
+import {parse} from "csv-parse/sync";
 import * as fs from "fs";
-import next from "next";
-
-
-// These names are to stay since they are given as such by the Wiener Linien.
-type Haltepunkt = {
-    StopID: string,
-    DIVA: string,
-    StopText: string,
-    Municipality: string,
-    MunicipalityID: string,
-    Longitude: string,
-    Latitude: string
-}
-type Haltestelle = {
-
-    DIVA: string,
-    PlatformText: string,
-    Municipality: string,
-    MunicipalityID: string,
-    Longitude: string,
-    Latitude: string
-
-}
-type Fahrwegverlauf = {
-    LineID: string,
-    PatternID: string,
-    StopSeqCount: string,
-    StopID: string,
-    Direction: string
-}
-type Linie = {
-
-    LineID: string,
-    LineText: string,
-    SortingHelp: string,
-    Realtime: string,
-    MeansOfTransport: string
-}
+import type {LineEndstop, Location} from "@/types/Direction";
+import type {Stop} from "@/types/Stop";
+import type {Fahrwegverlauf, Haltepunkt, Haltestelle, Linie} from "./wl-types";
+import {setTimeout as sleep} from 'node:timers/promises';
 
 type CsvDataMap = {
     haltepunkte: Haltepunkt[];
     haltestellen: Haltestelle[];
     fahrwegverlaeufe: Fahrwegverlauf[];
     linien: Linie[];
-};
-
-
-type Location = {
-    lat: number;
-    lon: number;
-};
-type Direction = {
-    num: string;
-    location: Location;
-};
-type Line = {
-    lineID: string;
-    lineText?: string;
-    directions: Direction[];
-};
-
-type LineEndstop = {
-    lineID: string;
-    lineText: string;
-    directions: DirectionEndstop[];
-};
-type DirectionEndstop = {
-    num: string;
-    endstop: string;
 }
 
-type StopDetails = {
-    name: string;
-    location: Location;
-};
-type Stop = {
-    diva: string;
-    stop: StopDetails;
-    lines: Line[];
-};
-type Stops = {
-    stops: Stop[];
-};
-type Lines = {
-    lines: LineEndstop[];
-}
 type temp = {
     stopID: string;
     location: Location;
 }
 
+async function downloadCSV(url: string): Promise<string> {
+    const response = await fetch(url, {
+        cache: "no-store"
+    });
 
-export async function downloadCSV(url: string): Promise<string> {
-  const response = await fetch(url, {
-    cache: "no-store" // prevents Next from caching the    CSV
-  });
+    if (!response.ok) {
+        throw new Error(`Failed to download CSV: ${response.status} ${response.statusText}`);
+    }
 
-  if (!response.ok) {
-    throw new Error(`Failed to download CSV: ${response.status} ${response.statusText}`);
-  }
-
-  return response.text();
+    return response.text();
 }
 
 
 function csvToJson(csvText: string) {
-
     const records = parse(csvText, {
-    columns: true,
-    skip_empty_lines: true,
-    relax_column_count: true,
-    relax_quotes: true,
-    trim: true,
-    delimiter: ";"
+        columns: true,
+        skip_empty_lines: true,
+        relax_column_count: true,
+        relax_quotes: true,
+        trim: true,
+        delimiter: ";"
     });
-
 
     return records;
 }
 
-function stops(dataStore: CsvDataMap){
-    const stopsCollection: Stops = {
-        stops: []
-    };
-
+function stops(dataStore: CsvDataMap) {
+    let stops = new Array<Stop>();
 
     dataStore.haltestellen.forEach(haltestelle => {
         let stop: Stop = {
@@ -133,7 +53,7 @@ function stops(dataStore: CsvDataMap){
                 name: haltestelle.PlatformText,
                 location: {
                     lat: Number(haltestelle.Latitude),
-                    lon: Number(haltestelle.Latitude)
+                    lon: Number(haltestelle.Longitude)
                 }
             },
             lines: []
@@ -141,12 +61,12 @@ function stops(dataStore: CsvDataMap){
 
         const temp: temp[] = [];
         dataStore.haltepunkte.forEach(haltepunkte => {
-            if(haltestelle.DIVA == haltepunkte.DIVA){
+            if (haltestelle.DIVA == haltepunkte.DIVA) {
                 temp.push(
                     {
-                        stopID : haltepunkte.StopID, 
+                        stopID: haltepunkte.StopID,
                         location: {
-                            lat: Number(haltepunkte.Latitude), 
+                            lat: Number(haltepunkte.Latitude),
                             lon: Number(haltepunkte.Longitude)
                         }
                     }
@@ -155,10 +75,8 @@ function stops(dataStore: CsvDataMap){
         });
 
         dataStore.fahrwegverlaeufe.forEach(fahrwegverlauf => {
-        
             const stopFromTemp = temp.find(item => item.stopID === fahrwegverlauf.StopID);
             if (!stopFromTemp) return;
-
 
             let lineTest = stop.lines.find(line => line.lineID === fahrwegverlauf.LineID);
 
@@ -186,7 +104,7 @@ function stops(dataStore: CsvDataMap){
             // line already exists here (found or created)
 
             const directionExists = lineTest.directions.some(
-                d => d.num === fahrwegverlauf.Direction
+                direction => direction.num === fahrwegverlauf.Direction
             );
 
             if (!directionExists) {
@@ -198,47 +116,31 @@ function stops(dataStore: CsvDataMap){
 
         });
 
-        dataStore.linien.forEach(li => {
-            //if(li.)
-
-            let item = {
-                lineID: li.LineID,
-                directions: []
-            }
-
-        });
-
-        stopsCollection.stops.push(stop);
+        stops.push(stop);
     });
-
-    const data = stopsCollection; // or whatever object you want
 
     fs.writeFileSync(
         "./public/stops.json",
-        JSON.stringify(data, null, 0),
+        JSON.stringify(stops, null, 0),
         "utf-8"
     );
 }
 
-function lines(dataStore: CsvDataMap){
-
-    let linesCollection: Lines = {
-        lines: []
-    }
+function lines(dataStore: CsvDataMap) {
+    let lines = new Array<LineEndstop>();
 
     dataStore.fahrwegverlaeufe.forEach(element => {
-        if(Number(element.PatternID) <= 2 && Number(element.StopSeqCount) === 0){
+        if (Number(element.PatternID) <= 2 && Number(element.StopSeqCount) === 0) {
 
-            let ltTextFill : string | undefined;
-            let hpFill : string | undefined;
+            let lineText: string | undefined;
+            let endstop: string | undefined;
 
             for (const linie of dataStore.linien) {
                 if (linie.LineID === element.LineID) {
-                    ltTextFill = linie.LineText;
+                    lineText = linie.LineText;
                     break;
                 }
             }
-
 
             const maxItem = dataStore.fahrwegverlaeufe
                 .filter(item => item.StopID === element.StopID)
@@ -246,35 +148,31 @@ function lines(dataStore: CsvDataMap){
                     Number(current) > Number(max) ? current : max
                 );
 
-            hpFill = dataStore.haltepunkte.find(line => line.StopID === maxItem.StopID)?.StopText; 
+            endstop = dataStore.haltepunkte.find(line => line.StopID === maxItem.StopID)?.StopText;
 
-            if(ltTextFill == undefined || hpFill == undefined){
+            if (lineText == undefined || endstop == undefined) {
                 return;
             }
 
+            if (lines.some(line => line.lineID === element.LineID)) {
+                let line = lines.find(line => line.lineID === element.LineID);
 
-            if(linesCollection.lines.some(line => line.lineID === element.LineID)){
-                let line = linesCollection.lines.find(line => line.lineID === element.LineID);
-                
-                
-                if(line == undefined){
+                if (line == undefined) {
                     return;
-                } 
-                
+                }
 
                 line.directions.push({
                     num: element.Direction,
-                    endstop: hpFill
+                    endstop
                 });
-            } else{
-
-                linesCollection.lines.push({
+            } else {
+                lines.push({
                     lineID: element.LineID,
-                    lineText: ltTextFill,
+                    lineText,
                     directions: [
                         {
                             num: element.Direction,
-                            endstop: hpFill
+                            endstop
                         }
                     ]
                 })
@@ -283,54 +181,63 @@ function lines(dataStore: CsvDataMap){
 
     });
 
-    const data = linesCollection; // or whatever object you want
-
     fs.writeFileSync(
         "./public/lines.json",
-        JSON.stringify(data, null, 0),
+        JSON.stringify(lines, null, 0),
         "utf-8"
     );
 }
 
-async function main() {
-    const csvUrlMainpart = "https://www.wienerlinien.at/ogd_realtime/doku/ogd/wienerlinien-ogd-";
+const MAX_RETRIES = 3
+const RETRY_DELAY_MS = 1000;
+let attempt = 0
+const delay = RETRY_DELAY_MS * attempt;
 
-    type CsvKey = typeof csvUrls[number];
-    const dataStore: CsvDataMap = {
-        haltepunkte: [],
-        haltestellen: [],
-        fahrwegverlaeufe: [],
-        linien: [],
-    };
-    
-    const csvUrls = [
-        "haltepunkte",
-        "haltestellen",
-        "fahrwegverlaeufe",
-        "linien",
-    ] as const;
+while (attempt < MAX_RETRIES) {
+    try {
+        const csvBaseUrl = "https://www.wienerlinien.at/ogd_realtime/doku/ogd/wienerlinien-ogd-";
 
+        const dataStore: CsvDataMap = {
+            haltepunkte: [],
+            haltestellen: [],
+            fahrwegverlaeufe: [],
+            linien: [],
+        };
 
-    for (let index = 0; index < csvUrls.length; index++) {
-        const element = csvUrls[index];
+        const fileNamens = [
+            "haltepunkte",
+            "haltestellen",
+            "fahrwegverlaeufe",
+            "linien",
+        ];
 
-        const csvUrl = csvUrlMainpart + element + ".csv";
-        const csvText = await downloadCSV(csvUrl);
-        const jsonData = csvToJson(csvText);
+        for (const fileName of fileNamens) {
+            const csvUrl = csvBaseUrl + fileName + ".csv";
+            const csvText = await downloadCSV(csvUrl);
+            const jsonData = csvToJson(csvText);
 
-        if (element === "haltepunkte") {
-            dataStore.haltepunkte = jsonData as Haltepunkt[];
-        } else if (element === "haltestellen") {
-            dataStore.haltestellen = jsonData as Haltestelle[];
-        } else if (element === "fahrwegverlaeufe") {
-            dataStore.fahrwegverlaeufe = jsonData as Fahrwegverlauf[];
-        } else if (element === "linien") {
-            dataStore.linien = jsonData as Linie[];
-        }        
+            if (fileName === "haltepunkte") {
+                dataStore.haltepunkte = jsonData as Haltepunkt[];
+            } else if (fileName === "haltestellen") {
+                dataStore.haltestellen = jsonData as Haltestelle[];
+            } else if (fileName === "fahrwegverlaeufe") {
+                dataStore.fahrwegverlaeufe = jsonData as Fahrwegverlauf[];
+            } else {
+                dataStore.linien = jsonData as Linie[];
+            }
+        }
+
+        stops(dataStore);
+        lines(dataStore);
+
+        console.log("✅ Successfully downloaded lines & stops from Wiener Linien");
+        process.exit(0);
+    } catch (err) {
+        if (attempt + 1 === MAX_RETRIES) {
+            process.exit(1);
+        } else {
+            console.error("❌ Could not download data from Wiener Linien - Retrying in " + delay, err);
+            await sleep(delay);
+        }
     }
-
-    stops(dataStore);
-    lines(dataStore);
 }
-
-main().catch(console.error);
