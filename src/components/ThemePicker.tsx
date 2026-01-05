@@ -8,17 +8,21 @@ export default function ThemePicker() {
     const {colorScheme, setColorScheme} = useMantineColorScheme();
 
     const toggleTheme = async () => {
-        if (colorScheme === 'light') {
-            const darkThemeColor = window.getComputedStyle(document.body).getPropertyValue('--color-darkmode-gray');
-            await setTheme(darkThemeColor);
-            setColorScheme('dark');
-        } else if (colorScheme === 'dark') {
-            await setTheme("");
-            setColorScheme('auto');
-        } else {
-            const lightThemeColor = window.getComputedStyle(document.body).getPropertyValue('--color-lightmode-white');
-            await setTheme(lightThemeColor);
-            setColorScheme('light');
+        try {
+            if (colorScheme === 'light') {
+                const darkThemeColor = window.getComputedStyle(document.body).getPropertyValue('--color-darkmode-gray');
+                setColorScheme('dark');
+                await setTheme(darkThemeColor);
+            } else if (colorScheme === 'dark') {
+                setColorScheme('auto');
+                await setTheme("");
+            } else {
+                const lightThemeColor = window.getComputedStyle(document.body).getPropertyValue('--color-lightmode-white');
+                setColorScheme('light');
+                await setTheme(lightThemeColor);
+            }
+        } catch (error) {
+            // server unreachable (when served from offline cache)
         }
     }
 

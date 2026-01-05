@@ -80,8 +80,8 @@ export default function Banner({isBannerOpenInit}: BannerProps) {
 
                     <div className="flex flex-1 items-center" onClick={handleBannerClick}>
                         <img
-                            src={'https://via.placeholder.com/64'}
-                            alt={""}
+                            src={'/icons/apple-touch-icon.png'}
+                            alt={"BimSprint App Icon"}
                             className="mr-3 h-[48px] w-[48px] flex-shrink-0 rounded-[10px] border border-black/5 object-cover shadow-sm dark:border-white/10"
                         />
                         <div className="flex flex-col justify-center truncate">

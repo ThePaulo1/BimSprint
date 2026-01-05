@@ -1,6 +1,13 @@
-import { defaultCache } from "@serwist/next/worker";
-import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
-import { Serwist } from "serwist";
+import {defaultCache} from "@serwist/next/worker";
+import {
+    CacheFirst,
+    ExpirationPlugin,
+    NetworkOnly,
+    PrecacheEntry,
+    SerwistGlobalConfig,
+    StaleWhileRevalidate
+} from "serwist";
+import {Serwist} from "serwist";
 
 declare global {
     interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -18,20 +25,36 @@ const serwist = new Serwist({
     skipWaiting: true,
     clientsClaim: true,
     navigationPreload: false,
-    runtimeCaching: defaultCache,
+    runtimeCaching: [
+        {
+            matcher({request}) {
+                return request.mode === "navigate";
+            },
+            handler: new NetworkOnly(),
+        },
+        {
+            matcher: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
+            handler: new StaleWhileRevalidate({
+                cacheName: "static-image-assets",
+                plugins: [
+                    new ExpirationPlugin({
+                        maxEntries: 12,
+                        maxAgeFrom: "last-used",
+                    }),
+                ],
+            }),
+        },
+    ],
+    fallbacks: {
+        entries: [
+            {
+                url: "/offline",
+                matcher({request}) {
+                    return request.destination === "document";
+                },
+            },
+        ],
+    }
 });
-
-const urlsToPrecache = ["/"];
-
-self.addEventListener("install", async (event) => {
-    await Promise.all(
-        urlsToPrecache.map((entry) => {
-            return serwist.handleRequest({ request: new Request(entry), event });
-        }),
-    );
-
-    await serwist.handleInstall(event);
-});
-
 
 serwist.addEventListeners();

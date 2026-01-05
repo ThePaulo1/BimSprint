@@ -52,7 +52,7 @@ export default function Metrics() {
                         style={{ backgroundColor: activeColor }}
                     />
                     <div
-                        className="w-48 h-48 rounded-full animate-breathing shadow-[0_0_60px_rgba(0,0,0,0.5)] flex items-center justify-center transition-colors duration-1000 relative z-10"
+                        className="w-48 h-48 rounded-full animate-breathing dark:shadow-black/50 shadow-gray-300/50 shadow-[0_0_60px] flex items-center justify-center transition-colors duration-1000 relative z-10"
                         style={{ backgroundColor: activeColor }}
                     >
                         {/* Distance in center of orb */}
