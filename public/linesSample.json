@@ -1,0 +1,17 @@
+{
+    "lines" : [
+        {
+            "id": 301,
+            "LineText" : "U1",
+            "directions": [
+            {
+                "num": 1,
+                "endstop" : "Stephan-Fadinger-Platz"
+            },
+            {
+                "num": 2,
+                "endstop" : "Prater-Haupt-Allee"
+            }]   
+        } 
+    ]
+}
