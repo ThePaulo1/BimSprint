@@ -1,13 +1,22 @@
+"use client"
+
 import Link from "next/link";
 import {IconMapPin, IconChevronRight} from "@tabler/icons-react";
-
-const stops = [
-    "Stephansplatz", "Börse", "Lassallestraße", "Hauptbahnhof S U",
-    "Julius-Raab-Platz", "Stubentor U, Dr.-Karl-Lueger-Platz",
-    "Weihburggasse", "Schwarzenbergplatz", "Oper, Karlsplatz U", "Burgring"
-];
+import {useLocationStore} from "@/store/userLocationStore";
+import {useEffect, useState} from "react";
+import {getNearestStops} from "@/app/lib/utils";
+import {Stop} from "@/types/Stop";
 
 export default function Stops() {
+    const lat = useLocationStore((s) => s.lat) ?? 0;
+    const lon = useLocationStore((s) => s.lon) ?? 0;
+    const [stops, setStops] = useState<Stop[]>([]);
+
+    useEffect(() => {
+
+        setStops(getNearestStops([lat, lon]))
+    }, [])
+
     return (
         <div className="flex flex-col h-full">
             <header className="p-6 pb-4 flex-none border-b border-slate-100 dark:border-[#2e2e2e]">
@@ -18,15 +27,16 @@ export default function Stops() {
             <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
                 {stops.map((stop) => (
                     <Link
-                        key={stop}
-                        href={`/stop/${encodeURIComponent(stop)}`}
+                        key={stop.diva}
+                        href={`/stop/${encodeURIComponent(stop.diva)}`}
                         className="flex group items-center justify-between p-4 bg-slate-50 dark:bg-[#1e1e1e] rounded-2xl hover:bg-slate-100 dark:hover:bg-[#252525] transition-all"
                     >
                         <div className="flex items-center gap-3">
                             <IconMapPin size={20} className="text-yellow-400 dark:text-yellow-300"/>
-                            <span className="font-semibold">{stop}</span>
+                            <span className="font-semibold">{stop.stop.name}</span>
                         </div>
-                        <IconChevronRight size={20} className="text-slate-400 group-hover:text-gray-600 dark:group-hover:text-gray-200"/>
+                        <IconChevronRight size={20}
+                                          className="text-slate-400 group-hover:text-gray-600 dark:group-hover:text-gray-200"/>
                     </Link>
                 ))}
             </div>

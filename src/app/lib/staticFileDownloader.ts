@@ -120,7 +120,7 @@ function stops(dataStore: CsvDataMap) {
     });
 
     fs.writeFileSync(
-        "./public/stops.json",
+        "./src/data/stops.json",
         JSON.stringify(stops, null, 0),
         "utf-8"
     );
@@ -182,7 +182,7 @@ function lines(dataStore: CsvDataMap) {
     });
 
     fs.writeFileSync(
-        "./public/lines.json",
+        "./src/data/lines.json",
         JSON.stringify(lines, null, 0),
         "utf-8"
     );
@@ -237,6 +237,7 @@ while (attempt < MAX_RETRIES) {
             process.exit(1);
         } else {
             console.error("❌ Could not download data from Wiener Linien - Retrying in " + delay, err);
+            attempt++
             await sleep(delay);
         }
     }

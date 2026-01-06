@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {IconArrowRight, IconTrain} from "@tabler/icons-react";
+import {getStopNameByDiva} from "@/app/lib/utils";
 
 const stopData: Record<string, string[]> = {
     "Stephansplatz": ["U1 Oberlaa", "U1 Leopoldau", "U3 Ottakring", "U3 Simmering"],
@@ -20,7 +21,7 @@ interface StopProps {
 
 export default async function StopDetail({params}: StopProps) {
     const {id} = await params;
-    const decodedId = decodeURIComponent(id);
+    const decodedId = getStopNameByDiva(decodeURIComponent(id));
     const directions = stopData[decodedId] || [];
 
     const grouped: Record<string, string[]> = {};

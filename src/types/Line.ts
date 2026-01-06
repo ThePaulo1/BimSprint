@@ -5,7 +5,3 @@ export type Line = {
     lineText?: string;
     directions: Direction[];
 }
-
-export type Lines = {
-    lines: LineEndstop[];
-}
