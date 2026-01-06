@@ -11,7 +11,3 @@ export type Stop = {
     stop: StopDetails;
     lines: Line[];
 }
-
-export type Stops = {
-    stops: Stop[];
-}
