@@ -11,11 +11,22 @@ export default function Stops() {
     const lat = useLocationStore((s) => s.lat) ?? 0;
     const lon = useLocationStore((s) => s.lon) ?? 0;
     const [stops, setStops] = useState<Stop[]>([]);
+    const [isHydrated, setIsHydrated] = useState(false);
 
+    // 1. Verhindert Hydrierungsfehler (Server vs Client)
     useEffect(() => {
+        setIsHydrated(true);
+    }, []);
 
-        setStops(getNearestStops([lat, lon]))
-    }, [])
+    // 2. Reagiert auf Standort-Updates
+    useEffect(() => {
+        // Wir suchen erst, wenn lat/lon nicht mehr 0 sind UND die Seite geladen ist
+        if (isHydrated && lat !== 0 && lon !== 0) {
+            // WICHTIG: Turf in deinen Utils braucht meist [lon, lat]
+            const nearest = getNearestStops([lon, lat]);
+            setStops(nearest);
+        }
+    }, [lat, lon, isHydrated]); // Das sorgt dafür, dass die Liste erscheint, sobald GPS Daten liefert
 
     return (
         <div className="flex flex-col h-full">
@@ -25,7 +36,7 @@ export default function Stops() {
             </header>
 
             <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
-                {stops.map((stop) => (
+                {isHydrated && stops.map((stop) => (
                     <Link
                         key={stop.diva}
                         href={`/stop/${encodeURIComponent(stop.diva)}`}
