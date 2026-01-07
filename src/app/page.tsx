@@ -1,21 +1,22 @@
 "use client"
 
 import Link from "next/link";
-import {IconMapPin, IconChevronRight} from "@tabler/icons-react";
+import {IconChevronRight, IconMapPin} from "@tabler/icons-react";
 import {useLocationStore} from "@/store/userLocationStore";
-import {useEffect, useState} from "react";
+import {useMemo} from "react";
 import {getNearestStops} from "@/app/lib/utils";
-import {Stop} from "@/types/Stop";
+import {useShallow} from "zustand/react/shallow";
 
 export default function Stops() {
-    const lat = useLocationStore((s) => s.lat) ?? 0;
-    const lon = useLocationStore((s) => s.lon) ?? 0;
-    const [stops, setStops] = useState<Stop[]>([]);
+    const { lat, lon } = useLocationStore(useShallow((s) => ({ lat: s.lat, lon: s.lon })));
 
-    useEffect(() => {
+    const stops = useMemo(() => {
+        if (!lat || !lon) return [];
+        console.log("getting stops")
+        return getNearestStops([lon, lat], 10);
+    }, [lat, lon]);
 
-        setStops(getNearestStops([lat, lon]))
-    }, [])
+    if (!lat || !lon) return <div>Suche Standort...</div>;
 
     return (
         <div className="flex flex-col h-full">
