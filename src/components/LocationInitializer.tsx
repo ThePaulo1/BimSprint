@@ -1,20 +1,14 @@
 "use client";
 
-import {JSX, useEffect} from "react";
-import { useGeolocation } from "@uidotdev/usehooks";
+import {useEffect} from "react";
 import {useLocationStore} from "@/store/userLocationStore";
 
 export function LocationInitializer() {
-    const updateStore = useLocationStore((s) => s.update);
-
-    const geo = useGeolocation({
-        enableHighAccuracy: true,
-        timeout: 100,
-    });
+    const update = useLocationStore((s) => s.update);
 
     useEffect(() => {
-        updateStore(geo);
-    }, [geo, updateStore]);
+        update()
+    }, [update]);
 
     return null;
 }

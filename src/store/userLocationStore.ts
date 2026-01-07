@@ -5,7 +5,7 @@ interface LocationState {
     lon: number | null;
     speed: number;
     error: Error | null;
-    update: (data: any) => void;
+    update: () => void;
 }
 
 export const useLocationStore = create<LocationState>((set) => ({
@@ -13,10 +13,20 @@ export const useLocationStore = create<LocationState>((set) => ({
     lon: null,
     speed: 0,
     error: null,
-    update: (data) => set({
-        lat: data.coords?.latitude || null,
-        lon: data.coords?.longitude || null,
-        speed: data.coords?.speed ? Number((data.coords.speed * 3.6).toFixed(2)) : 0,
-        error: data.error || null,
-    }),
+    update: () => {
+        if (typeof window === 'undefined') return;
+        navigator.geolocation.watchPosition(
+            (position) => {
+                set({
+                    lat: position.coords.latitude,
+                    lon: position.coords.longitude,
+                    speed: position.coords.speed ? Number((position.coords.speed * 3.6).toFixed(2)) : 0
+                });
+            },
+            (err) => {
+                console.error("GPS Error:", err.code, err.message);
+            },
+            { enableHighAccuracy: true }
+        );
+    }
 }));
