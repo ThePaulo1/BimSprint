@@ -1,32 +1,22 @@
 "use client"
 
 import Link from "next/link";
-import {IconMapPin, IconChevronRight} from "@tabler/icons-react";
+import {IconChevronRight, IconMapPin} from "@tabler/icons-react";
 import {useLocationStore} from "@/store/userLocationStore";
-import {useEffect, useState} from "react";
+import {useMemo} from "react";
 import {getNearestStops} from "@/app/lib/utils";
-import {Stop} from "@/types/Stop";
+import {useShallow} from "zustand/react/shallow";
 
 export default function Stops() {
-    const lat = useLocationStore((s) => s.lat) ?? 0;
-    const lon = useLocationStore((s) => s.lon) ?? 0;
-    const [stops, setStops] = useState<Stop[]>([]);
-    const [isHydrated, setIsHydrated] = useState(false);
+    const { lat, lon } = useLocationStore(useShallow((s) => ({ lat: s.lat, lon: s.lon })));
 
-    // 1. Verhindert Hydrierungsfehler (Server vs Client)
-    useEffect(() => {
-        setIsHydrated(true);
-    }, []);
+    const stops = useMemo(() => {
+        if (!lat || !lon) return [];
+        console.log("getting stops")
+        return getNearestStops([lon, lat], 10);
+    }, [lat, lon]);
 
-    // 2. Reagiert auf Standort-Updates
-    useEffect(() => {
-        // Wir suchen erst, wenn lat/lon nicht mehr 0 sind UND die Seite geladen ist
-        if (isHydrated && lat !== 0 && lon !== 0) {
-            // WICHTIG: Turf in deinen Utils braucht meist [lon, lat]
-            const nearest = getNearestStops([lon, lat]);
-            setStops(nearest);
-        }
-    }, [lat, lon, isHydrated]); // Das sorgt dafür, dass die Liste erscheint, sobald GPS Daten liefert
+    if (!lat || !lon) return <div>Suche Standort...</div>;
 
     return (
         <div className="flex flex-col h-full">
@@ -36,7 +26,7 @@ export default function Stops() {
             </header>
 
             <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
-                {isHydrated && stops.map((stop) => (
+                {stops.map((stop) => (
                     <Link
                         key={stop.diva}
                         href={`/stop/${encodeURIComponent(stop.diva)}`}
