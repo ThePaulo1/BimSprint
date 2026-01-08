@@ -76,12 +76,11 @@ export async function apiHandler(diva: string, lineNum: string, direction: strin
         try {
             let data = await apiHandlerCore(diva, lineNum, direction);
             
-            console.log(data);
-            console.log("✅ Successfully got the data!");
-            process.exit(0);
+            return (data);
         } catch (err) {
             const delay = RETRY_DELAY_MS * attempt;
             if (attempt + 1 === MAX_RETRIES) {
+
                 process.exit(1);
             } else {
                 console.error("❌ Could not download data from Wiener Linien - Retrying in " + delay, err);
@@ -90,6 +89,7 @@ export async function apiHandler(diva: string, lineNum: string, direction: strin
             }
         }
     }
+    return new Array<string>;
 }
 
 let data = await apiHandler("60200001", "111", "2");
