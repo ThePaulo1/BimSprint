@@ -13,7 +13,7 @@ export default function Stops() {
     const stops = useMemo(() => {
         if (!lat || !lon) return [];
         console.log("getting stops")
-        return getNearestStops([lon, lat], 10);
+        return getNearestStops(lon, lat);
     }, [lat, lon]);
 
     if (!lat || !lon) return <div>Suche Standort...</div>;
