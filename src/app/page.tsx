@@ -1,27 +1,44 @@
 "use client"
 
 import Link from "next/link";
-import {IconChevronRight, IconMapPin} from "@tabler/icons-react";
+import {IconChevronRight, IconHeart, IconHeartFilled, IconMapPin, IconStar, IconStarFilled} from "@tabler/icons-react";
 import {useLocationStore} from "@/store/userLocationStore";
 import {useEffect, useMemo, useState} from "react";
-import {getNearestStops} from "@/app/lib/utils";
+import {getFavorites, getNearestStops, toggleFavorite} from "@/app/lib/utils";
 import {useShallow} from "zustand/react/shallow";
 
 export default function Stops() {
     const { lat, lon } = useLocationStore(useShallow((s) => ({ lat: s.lat, lon: s.lon })));
     const [isMounted, setIsMounted] = useState(false);
+    const [favIds, setFavIds] = useState<string[]>([]);
 
     // Verhindert den Hydration-Error:
     useEffect(() => {
         setIsMounted(true);
+        setFavIds(getFavorites());
     }, []);
+
+    const handleToggleFav = (e: React.MouseEvent, diva: string) => {
+        e.preventDefault(); // Verhindert Navigation zum Stop
+        e.stopPropagation();
+        const updated = toggleFavorite(diva);
+        setFavIds(updated);
+    };
 
     const stops = useMemo(() => {
         if (!lat || !lon) return [];
-        return getNearestStops([lon, lat], 10);
-    }, [lat, lon]);
 
-    // Wenn wir noch auf dem Server sind oder GPS fehlt
+        // 1. Hol die 10 nächsten Stationen
+        const nearest = getNearestStops([lon, lat], 10);
+
+        // 2. Sortiere sie: Favoriten zuerst, dann der Rest (Distanz bleibt gewahrt)
+        return [...nearest].sort((a, b) => {
+            const aFav = favIds.includes(String(a.diva)) ? 1 : 0;
+            const bFav = favIds.includes(String(b.diva)) ? 1 : 0;
+            return bFav - aFav; // 1 kommt vor 0
+        });
+    }, [lat, lon, favIds]);
+
     if (!isMounted || !lat || !lon) {
         return (
             <div className="flex flex-col h-full bg-[#121212] items-center justify-center">
@@ -38,20 +55,40 @@ export default function Stops() {
             </header>
 
             <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
-                {stops.map((stop) => (
-                    <Link
-                        key={stop.diva}
-                        href={`/stop/${encodeURIComponent(stop.diva)}`}
-                        className="flex group items-center justify-between p-4 bg-slate-50 dark:bg-[#1e1e1e] rounded-2xl hover:bg-slate-100 dark:hover:bg-[#252525] transition-all"
-                    >
-                        <div className="flex items-center gap-3">
-                            <IconMapPin size={20} className="text-yellow-400 dark:text-yellow-300"/>
-                            <span className="font-semibold">{stop.stop.name}</span>
-                        </div>
-                        <IconChevronRight size={20}
-                                          className="text-slate-400 group-hover:text-gray-600 dark:group-hover:text-gray-200"/>
-                    </Link>
-                ))}
+                {stops.map((stop) => {
+                    const isFav = favIds.includes(String(stop.diva));
+
+                    return (
+                        <Link
+                            key={stop.diva}
+                            href={`/stop/${encodeURIComponent(stop.diva)}`}
+                            className="flex group items-center justify-between p-4 bg-slate-50 dark:bg-[#1e1e1e] rounded-2xl hover:bg-slate-100 dark:hover:bg-[#252525] transition-all"
+                        >
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={(e) => handleToggleFav(e, String(stop.diva))}
+                                    className="focus:outline-none transition-transform active:scale-125"
+                                >
+                                    {isFav ? (
+                                        <IconHeartFilled size={20} className="text-red-500" />
+                                    ) : (
+                                        <IconHeart size={20} className="text-slate-500 dark:text-slate-500 hover:text-red-500" />
+                                    )}
+                                </button>
+
+                                <div className="flex items-center gap-3">
+                                    <IconMapPin size={20} className="text-yellow-400 dark:text-yellow-300"/>
+                                    <span className="font-semibold">{stop.stop.name}</span>
+                                    {isFav && (
+                                        <span className="text-[10px] text-red-500 font-bold uppercase tracking-wider"/>
+                                    )}
+                                </div>
+                            </div>
+                            <IconChevronRight size={20}
+                                              className="text-slate-400 group-hover:text-gray-600 dark:group-hover:text-gray-200"/>
+                        </Link>
+                    );
+                })}
             </div>
         </div>
     );

@@ -15,3 +15,24 @@ export const getNearestStops = (user: [number, number], amount = 10): Stop[] =>
 
 export const getStopNameByDiva = (diva: string) =>
     (stops.find(stop => stop.diva === diva) as Stop).stop?.name ?? "Unbekannte Haltestelle"
+
+
+export const getFavorites = (): string[] => {
+    if (typeof window === 'undefined') return [];
+    const favs = localStorage.getItem('bimsprint_favorites');
+    return favs ? JSON.parse(favs) : [];
+};
+
+
+export const toggleFavorite = (diva: string): string[] => {
+    const favs = getFavorites();
+    const divaStr = String(diva);
+    const isFav = favs.includes(divaStr);
+
+    const newFavs = isFav
+        ? favs.filter(id => id !== divaStr)
+        : [...favs, divaStr];
+
+    localStorage.setItem('bimsprint_favorites', JSON.stringify(newFavs));
+    return newFavs;
+};
