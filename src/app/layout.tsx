@@ -1,7 +1,7 @@
 import type {Metadata, Viewport} from "next";
 import type {ReactNode} from "react";
 import "./globals.css";
-import {constants} from "../constants";
+import {constants} from "@/constants";
 import Menu from "../components/Menu";
 import '@mantine/core/styles.css';
 import {ColorSchemeScript, mantineHtmlProps, MantineProvider} from '@mantine/core';

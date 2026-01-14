@@ -2,6 +2,8 @@ import stops from "@/data/stops.json";
 import {Stop} from "@/types/Stop";
 import Flatbush from 'flatbush';
 import {around} from 'geoflatbush';
+import {Line} from "@/types/Line";
+import {Direction} from "@/types/Direction";
 
 const index = new Flatbush(stops.length);
 
@@ -18,6 +20,9 @@ export const getNearestStops = (lon: number, lat: number, amount = 10): Stop[] =
 
 export const getStopByDiva = (diva: string) =>
     (stops.find(stop => stop.diva === diva) as Stop)
+
+export const getStopLineByDiva = (diva: string, lineId: string, direction: string) =>
+    (getStopByDiva(diva).lines.find(line => line.lineID === lineId)?.directions.find(line => line.num === direction) as Direction)
 
 export const getFavorites = (): string[] => {
     if (typeof window === 'undefined') return [];
