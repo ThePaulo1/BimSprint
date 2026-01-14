@@ -3,28 +3,21 @@
 import Link from "next/link";
 import {IconChevronRight, IconMapPin} from "@tabler/icons-react";
 import {useLocationStore} from "@/store/userLocationStore";
-import {useEffect, useMemo, useState} from "react";
+import {useMemo} from "react";
 import {getNearestStops} from "@/app/lib/utils";
 import {useShallow} from "zustand/react/shallow";
 
 export default function Stops() {
     const { lat, lon } = useLocationStore(useShallow((s) => ({ lat: s.lat, lon: s.lon })));
-    const [isMounted, setIsMounted] = useState(false);
-
-    // Verhindert den Hydration-Error:
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
 
     const stops = useMemo(() => {
         if (!lat || !lon) return [];
         return getNearestStops([lon, lat], 10);
     }, [lat, lon]);
 
-    // Wenn wir noch auf dem Server sind oder GPS fehlt
-    if (!isMounted || !lat || !lon) {
+    if (!lat || !lon) {
         return (
-            <div className="flex flex-col h-full bg-[#121212] items-center justify-center">
+            <div className="flex flex-col h-full items-center justify-center">
                 <p className="text-slate-400 animate-pulse">Suche Standort...</p>
             </div>
         );

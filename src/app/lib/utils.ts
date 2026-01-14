@@ -13,5 +13,5 @@ export const getNearestStops = (user: [number, number], amount = 10): Stop[] =>
         .map((wrapper) => wrapper.stop) as Stop[]
 
 
-export const getStopNameByDiva = (diva: string) =>
-    (stops.find(stop => stop.diva === diva) as Stop).stop?.name ?? "Unbekannte Haltestelle"
+export const getStopByDiva = (diva: string) =>
+    (stops.find(stop => stop.diva === diva) as Stop)
