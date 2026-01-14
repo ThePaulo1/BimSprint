@@ -16,7 +16,13 @@ export default function Stops() {
         return getNearestStops(lon, lat);
     }, [lat, lon]);
 
-    if (!lat || !lon) return <div>Suche Standort...</div>;
+    if (!lat || !lon) {
+        return (
+            <div className="flex flex-col h-full items-center justify-center">
+                <p className="text-slate-400 animate-pulse">Suche Standort...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col h-full">
