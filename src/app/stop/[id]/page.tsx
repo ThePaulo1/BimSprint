@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { IconArrowRight, IconTrain } from "@tabler/icons-react";
-import { getStopNameByDiva } from "@/app/lib/utils";
-import stopsData from "@/data/stops.json";
+import {IconArrowRight, IconTrain} from "@tabler/icons-react";
+import {getStopByDiva} from "@/app/lib/utils";
 import linesData from "@/data/lines.json";
 
 interface StopProps {
@@ -12,17 +11,12 @@ export default async function StopDetail({ params }: StopProps) {
     const { id } = await params;
     const divaId = decodeURIComponent(id);
 
-    // Name (nur String)
-    const stopName = getStopNameByDiva(divaId);
+    const stop = getStopByDiva(divaId);
+    const stopName = stop.stop.name;
 
-    // Volle Stop-Daten
-    const currentStop = stopsData.find(
-        (s) => String(s.diva) === String(divaId)
-    );
-
-    if (!currentStop || !stopName) {
+    if (!stop || !stopName) {
         return (
-            <div className="flex flex-col h-full items-center justify-center p-10 bg-[#121212]">
+            <div className="flex flex-col h-full items-center justify-center p-10">
                 <h1 className="text-xl font-bold text-white">
                     Haltestelle nicht gefunden
                 </h1>
@@ -43,12 +37,11 @@ export default async function StopDetail({ params }: StopProps) {
             </header>
 
             <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-8">
-                {currentStop.lines.map((line) => {
+                {stop.lines.map((line) => {
                     const lineInfo = (linesData as any[]).find(
                         (l) => String(l.lineID) === String(line.lineID)
                     );
 
-                    // 🔒 Filtert ALLE Richtungen ohne gültigen stops raus
                     const validDirections = line.directions.filter((dir) => {
                         const details = lineInfo?.directions?.find(
                             (d: any) => String(d.num) === String(dir.num)
@@ -56,7 +49,6 @@ export default async function StopDetail({ params }: StopProps) {
                         return details && details.endstop;
                     });
 
-                    // Linie überspringen, wenn keine gültige Richtung existiert
                     if (validDirections.length === 0) return null;
 
                     return (
@@ -81,7 +73,7 @@ export default async function StopDetail({ params }: StopProps) {
                                     return (
                                         <Link
                                             key={`${line.lineID}-${dir.num}`}
-                                            href={`/monitor/${currentStop.diva}?line=${line.lineID}&dir=${dir.num}`}
+                                            href={`/monitor/${stop.diva}?line=${line.lineID}&dir=${dir.num}`}
                                             className="min-w-[150px] flex-1 sm:flex-none flex flex-col p-5 bg-slate-50 dark:bg-[#1e1e1e] rounded-2xl hover:bg-slate-100 dark:hover:bg-[#252525] transition-all duration-200 active:scale-[0.96] group">
                                             <span
                                                 className="text-[10px] text-yellow-400 dark:text-yellow-300 font-black uppercase tracking-widest mb-2 group-hover:text-yellow-300 dark:group-hover:text-yellow-200">

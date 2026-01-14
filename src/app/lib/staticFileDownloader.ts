@@ -2,8 +2,8 @@ import {parse} from "csv-parse/sync";
 import * as fs from "fs";
 import type {LineEndstop, Location} from "@/types/Direction";
 import type {Stop} from "@/types/Stop";
-import type {Fahrwegverlauf, Haltepunkt, Haltestelle, Linie} from "./wl-types";
 import {setTimeout as sleep} from 'node:timers/promises';
+import type {Fahrwegverlauf, Haltepunkt, Haltestelle, Linie} from "@/app/lib/wl-types/features";
 
 type CsvDataMap = {
     haltepunkte: Haltepunkt[];
