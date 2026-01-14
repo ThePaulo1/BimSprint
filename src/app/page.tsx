@@ -18,7 +18,8 @@ export default function Stops() {
 
     const stops = useMemo(() => {
         if (!lat || !lon) return [];
-        return getNearestStops([lon, lat], 10);
+        console.log("getting stops")
+        return getNearestStops(lon, lat);
     }, [lat, lon]);
 
     // Wenn wir noch auf dem Server sind oder GPS fehlt

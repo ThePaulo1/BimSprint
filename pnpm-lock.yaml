@@ -32,6 +32,12 @@ importers:
       csv-parse:
         specifier: ^6.1.0
         version: 6.1.0
+      flatbush:
+        specifier: ^4.5.0
+        version: 4.5.0
+      geoflatbush:
+        specifier: ^2.0.0
+        version: 2.0.0
       next:
         specifier: ^16.1.1
         version: 16.1.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -51,6 +57,9 @@ importers:
         specifier: ^5.0.9
         version: 5.0.9(@types/react@19.2.7)(react@19.2.3)
     devDependencies:
+      '@types/geoflatbush':
+        specifier: ^1.0.4
+        version: 1.0.4
       '@types/node':
         specifier: ^25.0.3
         version: 25.0.3
@@ -647,6 +656,9 @@ packages:
   '@turf/invariant@7.3.1':
     resolution: {integrity: sha512-IdZJfDjIDCLH+Gu2yLFoSM7H23sdetIo5t4ET1/25X8gi3GE2XSqbZwaGjuZgNh02nisBewLqNiJs2bo+hrqZA==, tarball: https://registry.npmjs.org/@turf/invariant/-/invariant-7.3.1.tgz}
 
+  '@types/geoflatbush@1.0.4':
+    resolution: {integrity: sha512-exotNNG0hNPNeiHeAxeUxdQz2kkG9QEEqirLSWSh11GgkIeqWEeRJM+lmH1vChcNyHHFOtW6p6WTZXdZlwEleQ==, tarball: https://registry.npmjs.org/@types/geoflatbush/-/geoflatbush-1.0.4.tgz}
+
   '@types/geojson@7946.0.16':
     resolution: {integrity: sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==, tarball: https://registry.npmjs.org/@types/geojson/-/geojson-7946.0.16.tgz}
 
@@ -779,9 +791,18 @@ packages:
       picomatch:
         optional: true
 
+  flatbush@4.5.0:
+    resolution: {integrity: sha512-K7JSilGr4lySRLdJqKY45fu0m/dIs6YAAu/ESqdMsnW3pI0m3gpa6oRc6NDXW161Ov9+rIQjsuyOt5ObdIfgwg==, tarball: https://registry.npmjs.org/flatbush/-/flatbush-4.5.0.tgz}
+
+  flatqueue@3.0.0:
+    resolution: {integrity: sha512-y1deYaVt+lIc/d2uIcWDNd0CrdQTO5xoCjeFdhX0kSXvm2Acm0o+3bAOiYklTEoRyzwio3sv3/IiBZdusbAe2Q==, tarball: https://registry.npmjs.org/flatqueue/-/flatqueue-3.0.0.tgz}
+
   foreground-child@3.3.1:
     resolution: {integrity: sha512-gIXjKqtFuWEgzFRJA9WCQeSJLZDjgJUOMCMzxtvFq/37KojM1BFGufqsCy0r4qSQmYLsZYMeyRqzIWOMup03sw==, tarball: https://registry.npmjs.org/foreground-child/-/foreground-child-3.3.1.tgz}
     engines: {node: '>=14'}
+
+  geoflatbush@2.0.0:
+    resolution: {integrity: sha512-YdK82L0RXD4nQpcYAp7kuJw9xxCdYRN6RsQRuJ47Ut/fyBvP6jRU2hLBvPaDo9ayBFIgLURLlI9ZVkUvMeZHfA==, tarball: https://registry.npmjs.org/geoflatbush/-/geoflatbush-2.0.0.tgz}
 
   get-nonce@1.0.1:
     resolution: {integrity: sha512-FJhYRoDaiatfEkUK8HKlicmu/3SGFD51q3itKDGoSTysQJBnfOcxU5GxnhE1E6soB76MbT0MBtnKJuXyAx+96Q==, tarball: https://registry.npmjs.org/get-nonce/-/get-nonce-1.0.1.tgz}
@@ -1692,6 +1713,10 @@ snapshots:
       '@types/geojson': 7946.0.16
       tslib: 2.8.1
 
+  '@types/geoflatbush@1.0.4':
+    dependencies:
+      flatbush: 4.5.0
+
   '@types/geojson@7946.0.16': {}
 
   '@types/node@25.0.3':
@@ -1816,10 +1841,18 @@ snapshots:
     optionalDependencies:
       picomatch: 4.0.3
 
+  flatbush@4.5.0:
+    dependencies:
+      flatqueue: 3.0.0
+
+  flatqueue@3.0.0: {}
+
   foreground-child@3.3.1:
     dependencies:
       cross-spawn: 7.0.6
       signal-exit: 4.1.0
+
+  geoflatbush@2.0.0: {}
 
   get-nonce@1.0.1: {}
 
