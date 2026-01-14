@@ -9,12 +9,9 @@ import {useShallow} from "zustand/react/shallow";
 
 export default function Stops() {
     const { lat, lon } = useLocationStore(useShallow((s) => ({ lat: s.lat, lon: s.lon })));
-    const [isMounted, setIsMounted] = useState(false);
     const [favIds, setFavIds] = useState<string[]>([]);
 
-    // Verhindert den Hydration-Error:
     useEffect(() => {
-        setIsMounted(true);
         setFavIds(getFavorites());
     }, []);
 
@@ -27,11 +24,9 @@ export default function Stops() {
 
     const stops = useMemo(() => {
         if (!lat || !lon) return [];
+        console.log("getting stops")
+        const nearest = getNearestStops(lon, lat);
 
-        // 1. Hol die 10 nächsten Stationen
-        const nearest = getNearestStops([lon, lat], 10);
-
-        // 2. Sortiere sie: Favoriten zuerst, dann der Rest (Distanz bleibt gewahrt)
         return [...nearest].sort((a, b) => {
             const aFav = favIds.includes(String(a.diva)) ? 1 : 0;
             const bFav = favIds.includes(String(b.diva)) ? 1 : 0;
@@ -39,9 +34,9 @@ export default function Stops() {
         });
     }, [lat, lon, favIds]);
 
-    if (!isMounted || !lat || !lon) {
+    if (!lat || !lon) {
         return (
-            <div className="flex flex-col h-full bg-[#121212] items-center justify-center">
+            <div className="flex flex-col h-full items-center justify-center">
                 <p className="text-slate-400 animate-pulse">Suche Standort...</p>
             </div>
         );
