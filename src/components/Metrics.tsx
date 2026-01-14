@@ -3,6 +3,7 @@
 import {useEffect, useState} from "react";
 import distance from "@turf/distance";
 
+
 export default function Metrics() {
     const [speed, setSpeed] = useState(0);
     const [speedNotRetrieved, setSpeedNotRetrieved] = useState(false);
@@ -13,6 +14,39 @@ export default function Metrics() {
     const [userLat, setUserLat] = useState(0);
     const [userLong, setUserLong] = useState(0);
     const santa = [66.543966, 25.845279]
+
+
+
+
+    useEffect(() => {
+        const timestamps: string[] = [
+            "2026-01-14T18:00:00.000Z",
+            "2026-01-14T21:30:00.000Z",
+            "2026-01-15T09:15:00.000Z",
+            "2026-01-15T14:45:00.000Z",
+            "2026-01-15T20:00:00.000Z",
+            "2026-01-16T07:30:00.000Z",
+            "2026-01-16T12:00:00.000Z",
+            "2026-01-16T16:45:00.000Z",
+            "2026-01-17T10:15:00.000Z",
+            "2026-01-17T18:30:00.000Z"
+        ];
+
+        const targetTime = timestamps
+            .map(ts => new Date(ts).getTime()) // convert to unix timestamp
+            .find(tsTime => tsTime - Date.now() > 60 * 1000);
+                
+
+        const interval = setInterval(() => {
+            setMinutesLeft(Math.floor((targetTime - Date.now()) / (60 * 1000))); 
+            console.log(targetTime);
+            console.log(Date.now());
+            console.log("updated");
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, []);
+
 
     useEffect(() => {
         const options = {
@@ -28,8 +62,9 @@ export default function Metrics() {
 
     const parsePosition = (position: GeolocationPosition) => {
         const currentSpeed = position.coords.speed;
-        setDistanceToStop(distance([position.coords.latitude, position.coords.longitude], santa, {units: "meters"}))
-
+        setDistanceToStop(distance([position.coords.latitude, position.coords.longitude], santa, {units: "meters"}));
+        
+        
         if (currentSpeed === null) {
             console.log("Speed is null (not moving enough or no lock)");
             setSpeed(0);
