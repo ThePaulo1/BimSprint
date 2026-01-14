@@ -21,19 +21,18 @@ export const getStopByDiva = (diva: string) =>
 
 export const getFavorites = (): string[] => {
     if (typeof window === 'undefined') return [];
+
     const favs = localStorage.getItem('bimsprint_favorites');
     return favs ? JSON.parse(favs) : [];
 };
 
-
 export const toggleFavorite = (diva: string): string[] => {
     const favs = getFavorites();
-    const divaStr = String(diva);
-    const isFav = favs.includes(divaStr);
+    const isFav = favs.includes(diva);
 
     const newFavs = isFav
-        ? favs.filter(id => id !== divaStr)
-        : [...favs, divaStr];
+        ? favs.filter(id => id !== diva)
+        : [...favs, diva];
 
     localStorage.setItem('bimsprint_favorites', JSON.stringify(newFavs));
     return newFavs;

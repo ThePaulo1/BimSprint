@@ -1,21 +1,21 @@
 "use client"
 
 import Link from "next/link";
-import {IconChevronRight, IconHeart, IconHeartFilled, IconMapPin, IconStar, IconStarFilled} from "@tabler/icons-react";
+import {IconChevronRight, IconHeart, IconHeartFilled, IconMapPin} from "@tabler/icons-react";
 import {useLocationStore} from "@/store/userLocationStore";
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo, useState, MouseEvent} from "react";
 import {getFavorites, getNearestStops, toggleFavorite} from "@/app/lib/utils";
 import {useShallow} from "zustand/react/shallow";
 
 export default function Stops() {
-    const { lat, lon } = useLocationStore(useShallow((s) => ({ lat: s.lat, lon: s.lon })));
+    const {lat, lon} = useLocationStore(useShallow((s) => ({lat: s.lat, lon: s.lon})));
     const [favIds, setFavIds] = useState<string[]>([]);
 
     useEffect(() => {
         setFavIds(getFavorites());
     }, []);
 
-    const handleToggleFav = (e: React.MouseEvent, diva: string) => {
+    const handleToggleFav = (e: MouseEvent, diva: string) => {
         e.preventDefault(); // Verhindert Navigation zum Stop
         e.stopPropagation();
         const updated = toggleFavorite(diva);
@@ -24,14 +24,10 @@ export default function Stops() {
 
     const stops = useMemo(() => {
         if (!lat || !lon) return [];
-        console.log("getting stops")
-        const nearest = getNearestStops(lon, lat);
 
-        return [...nearest].sort((a, b) => {
-            const aFav = favIds.includes(String(a.diva)) ? 1 : 0;
-            const bFav = favIds.includes(String(b.diva)) ? 1 : 0;
-            return bFav - aFav; // 1 kommt vor 0
-        });
+        return getNearestStops(lon, lat)
+            .sort((a, b) =>
+                Number(favIds.includes(b.diva)) - Number(favIds.includes(a.diva)));
     }, [lat, lon, favIds]);
 
     if (!lat || !lon) {
@@ -51,7 +47,7 @@ export default function Stops() {
 
             <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
                 {stops.map((stop) => {
-                    const isFav = favIds.includes(String(stop.diva));
+                    const isFav = favIds.includes(stop.diva);
 
                     return (
                         <Link
@@ -61,13 +57,14 @@ export default function Stops() {
                         >
                             <div className="flex items-center gap-3">
                                 <button
-                                    onClick={(e) => handleToggleFav(e, String(stop.diva))}
+                                    onClick={(e) => handleToggleFav(e, stop.diva)}
                                     className="focus:outline-none transition-transform active:scale-125"
                                 >
                                     {isFav ? (
-                                        <IconHeartFilled size={20} className="text-red-500" />
+                                        <IconHeartFilled size={20} className="text-red-500"/>
                                     ) : (
-                                        <IconHeart size={20} className="text-slate-500 dark:text-slate-500 hover:text-red-500" />
+                                        <IconHeart size={20}
+                                                   className="text-slate-500 dark:text-slate-500 hover:text-red-500"/>
                                     )}
                                 </button>
 
