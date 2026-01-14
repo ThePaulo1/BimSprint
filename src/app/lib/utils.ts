@@ -1,17 +1,20 @@
 import stops from "@/data/stops.json";
-import distance from "@turf/distance";
 import {Stop} from "@/types/Stop";
+import Flatbush from 'flatbush';
+import {around} from 'geoflatbush';
 
-export const getNearestStops = (user: [number, number], amount = 10): Stop[] =>
-    stops
-        .map((stop) => ({
-            stop,
-            distance: distance(user as [number, number], [stop.stop.location.lon, stop.stop.location.lat], {units: "meters"})
-        }))
-        .sort((a, b) => a.distance - b.distance)
-        .slice(0, amount)
-        .map((wrapper) => wrapper.stop) as Stop[]
+const index = new Flatbush(stops.length);
 
+stops.forEach((stop) => {
+    const {lon, lat} = stop.stop.location;
+    index.add(lon, lat, lon, lat);
+})
+index.finish()
+
+export const getNearestStops = (lon: number, lat: number, amount = 10): Stop[] => {
+    const nearestIndices: number[] = around(index, lon, lat, amount);
+    return nearestIndices.map(idx => stops[idx]) as Stop[];
+}
 
 export const getStopByDiva = (diva: string) =>
     (stops.find(stop => stop.diva === diva) as Stop)
