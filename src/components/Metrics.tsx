@@ -6,6 +6,7 @@ import {useLocationStore} from "@/store/userLocationStore";
 import {useShallow} from "zustand/react/shallow";
 import {useSearchParams} from "next/navigation";
 import {getNearestStops, getStopLineByDiva} from "@/app/lib/utils";
+import { validMethods } from "serwist/dist/constants";
 
 interface MetricsProps {
     diva: string;
@@ -28,8 +29,49 @@ export default function Metrics({diva}: MetricsProps) {
     }, [lat, lon, diva, line, direction]);
 
 
+
     useEffect(() => {
-        fetch(`/api/monitor/${diva}?line=${line}&dir=${direction}`).then(data => console.log("problemo", data));
+        const timestamps: string[] = [];
+
+        fetch(`/api/monitor/${diva}?line=${line}&dir=${direction}`)
+        .then(res => {
+            if (!res.ok) {throw new Error(`HTTP error! status: ${res.status}`); }
+            return res.json();})
+        .then((data: string[]) => {
+            timestamps.push(...data);})
+        .then(() => {
+            let targetTime = 0;           
+            let diff: number = 0;     
+            const interval = setInterval(() => {
+                
+
+
+
+                if(diff <= 5){
+                    targetTime = timestamps
+                    .map(ts => new Date(ts).getTime())
+                    .find(tsTime => tsTime - Date.now() > 60 * 1000) ?? 0;
+
+                    console.log(targetTime);
+
+                    if(!targetTime) {
+                        console.log("none applicabe found");
+                        return;
+                    }
+                } 
+                diff = (targetTime - Date.now())/1000 ;                    
+                setMinutesLeft(Math.floor(diff / (60))); 
+                
+    
+            }, 5000);
+            
+            return () => clearInterval(interval);
+        })
+        .catch((error: any) => {
+            setMinutesLeft(0);
+        });
+
+
     }, []);
 
     return (
