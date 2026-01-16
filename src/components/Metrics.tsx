@@ -40,12 +40,12 @@ export default function Metrics({diva}: MetricsProps) {
         .then((data: string[]) => {
             timestamps.push(...data);})
         .then(() => {
-            let targetTime = 0;                
+            let targetTime = 0;           
+            let diff: number = 0;     
             const interval = setInterval(() => {
                 
 
-                let diff: number = (targetTime - Date.now())/1000;
-                console.log(diff);
+
 
                 if(diff <= 5){
                     targetTime = timestamps
@@ -59,7 +59,7 @@ export default function Metrics({diva}: MetricsProps) {
                         return;
                     }
                 } 
-                    
+                diff = (targetTime - Date.now())/1000 ;                    
                 setMinutesLeft(Math.floor(diff / (60))); 
                 
     
