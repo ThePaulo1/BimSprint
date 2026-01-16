@@ -26,40 +26,30 @@ export default function SafeTime({diva}: MetricsProps) {
 
     const [startTime, setStartTime] = useState<string>("")
     const [endTime, setEndTime] = useState<string>("")
+    const [resultMessage, setResultMessage] = useState("");
 
 
     const { items, addItem } = useScheduleStore()
 
     const handleScheduleSafe = () => {
-        console.log("trying to safe");
-        console.log( diva, line, dir, startTime, endTime);
-        if(diva && line && dir && startTime && endTime){
-
-        addItem({
-            diva,
-            line,
-            dir,
-            startTime,
-            endTime 
-        })
-
-        console.log("safed");   
+        console.log("trying to save");
+        if (diva && line && dir && startTime && endTime) {
+            setResultMessage("Saved"); // <-- React state instead of DOM
+            addItem({ diva, line, dir, startTime, endTime });
+        } else {
+            setResultMessage("An error occurred");
         }
-    }
-
+    };  
 
     const handleLocationSafe = () => {
-        if(diva && line && dir && lat && lon){
-
-        addItem({
-            diva,
-            line,
-            dir,
-            lat,
-            lon 
-        })
+        console.log("trying to save");
+        if (diva && line && dir && lat && lon) {
+            setResultMessage("Saved");
+            addItem({ diva, line, dir, lat, lon });
+        } else {
+            setResultMessage("An error occurred");
         }
-    }
+    };
 
 
     return (
@@ -80,14 +70,15 @@ export default function SafeTime({diva}: MetricsProps) {
             />
             
 
-                
-        <button onClick={handleScheduleSafe}>
-            Save Time
-        </button>
-        <button onClick={handleLocationSafe}>
-            Save Location
-        </button>
-        <p id="result"></p>
+                    
+            <button onClick={handleScheduleSafe}>
+                Save Time
+            </button>
+            <button onClick={handleLocationSafe}>
+                Save Location
+            </button>
+            <p id="result">{resultMessage}</p>
+
         </div>
   );
 }
