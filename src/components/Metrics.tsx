@@ -45,8 +45,6 @@ export default function Metrics({diva}: MetricsProps) {
             const interval = setInterval(() => {
                 
 
-
-
                 if(diff <= 5){
                     targetTime = timestamps
                     .map(ts => new Date(ts).getTime())
