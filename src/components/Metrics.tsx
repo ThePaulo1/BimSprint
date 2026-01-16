@@ -33,33 +33,36 @@ export default function Metrics({diva}: MetricsProps) {
     useEffect(() => {
         const timestamps: string[] = [];
 
-        console.log("getting Data");
         fetch(`/api/monitor/${diva}?line=${line}&dir=${direction}`)
         .then(res => {
             if (!res.ok) {throw new Error(`HTTP error! status: ${res.status}`); }
             return res.json();})
         .then((data: string[]) => {
-            timestamps.push(...data);
-            console.log(timestamps);})
+            timestamps.push(...data);})
         .then(() => {
-            console.log();
-
-            const targetTime = timestamps
-            .map(ts => new Date(ts).getTime()) // convert to unix timestamp
-            .find(tsTime => tsTime - Date.now() > 60 * 1000);
-            
-            console.log(targetTime);      
-
-            if(!targetTime) {
-                console.log("none applicabe found");
-                return;
-            }
-
+            let targetTime = 0;                
             const interval = setInterval(() => {
-                setMinutesLeft(Math.floor((targetTime - Date.now()) / (60 * 1000))); 
-                console.log(targetTime);
-                console.log(Date.now());
-                console.log("updated");
+                
+
+                let diff: number = (targetTime - Date.now())/1000;
+                console.log(diff);
+
+                if(diff <= 5){
+                    targetTime = timestamps
+                    .map(ts => new Date(ts).getTime())
+                    .find(tsTime => tsTime - Date.now() > 60 * 1000) ?? 0;
+
+                    console.log(targetTime);
+
+                    if(!targetTime) {
+                        console.log("none applicabe found");
+                        return;
+                    }
+                } 
+                    
+                setMinutesLeft(Math.floor(diff / (60))); 
+                
+    
             }, 5000);
             
             return () => clearInterval(interval);
@@ -67,8 +70,6 @@ export default function Metrics({diva}: MetricsProps) {
         .catch((error: any) => {
             setMinutesLeft(0);
         });
-
-
 
 
     }, []);
