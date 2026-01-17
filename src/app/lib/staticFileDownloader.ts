@@ -1,20 +1,27 @@
 import {parse} from "csv-parse/sync";
 import * as fs from "fs";
+
+
 import type {LineEndstop, Location} from "@/types/Direction";
 import type {Stop} from "@/types/Stop";
+import { Line } from "@/types/Line";
+import type {Steige, Haltestelle, Linie} from "@/app/lib/wl-types/features";
+
 import {setTimeout as sleep} from 'node:timers/promises';
-import type {Fahrwegverlauf, Haltepunkt, Haltestelle, Linie} from "@/app/lib/wl-types/features";
+import { setegid } from "node:process";
+
 
 type CsvDataMap = {
-    haltepunkte: Haltepunkt[];
     haltestellen: Haltestelle[];
-    fahrwegverlaeufe: Fahrwegverlauf[];
     linien: Linie[];
+    steige: Steige[];
 }
 
 type temp = {
     stopID: string;
     location: Location;
+    linieID: string;
+    richtung: string;
 }
 
 async function downloadCSV(url: string): Promise<string> {
@@ -50,78 +57,76 @@ function stops(dataStore: CsvDataMap) {
         let stop: Stop = {
             diva: haltestelle.DIVA,
             stop: {
-                name: haltestelle.PlatformText,
+                name: haltestelle.NAME,
                 location: {
-                    lat: Number(haltestelle.Latitude),
-                    lon: Number(haltestelle.Longitude)
+                    lat: Number(haltestelle.WGS84_LAT),
+                    lon: Number(haltestelle.WGS84_LON)
                 }
             },
             lines: []
         }
 
         const temp: temp[] = [];
-        dataStore.haltepunkte.forEach(haltepunkte => {
-            if (haltestelle.DIVA == haltepunkte.DIVA) {
+        dataStore.steige.forEach(steig => {
+            if (haltestelle.HALTESTELLEN_ID == steig.FK_HALTESTELLEN_ID) {
                 temp.push(
                     {
-                        stopID: haltepunkte.StopID,
+                        stopID: steig.STEIG_ID,
+                        linieID: steig.FK_LINIEN_ID,
+                        richtung: steig.RICHTUNG,
                         location: {
-                            lat: Number(haltepunkte.Latitude),
-                            lon: Number(haltepunkte.Longitude)
+                            lat: Number(steig.STEIG_WGS84_LAT),
+                            lon: Number(steig.STEIG_WGS84_LON)
                         }
                     }
                 );
             }
         });
 
-        dataStore.fahrwegverlaeufe.forEach(fahrwegverlauf => {
-            const stopFromTemp = temp.find(item => item.stopID === fahrwegverlauf.StopID);
-            if (!stopFromTemp) return;
+        dataStore.linien.forEach(linie => {
+            const linieFromTemp = temp.find(item => item.linieID === linie.LINIEN_ID);
+            if (!linieFromTemp) return;
 
-            let lineTest = stop.lines.find(line => line.lineID === fahrwegverlauf.LineID);
-
-            // if line does NOT exist → create it
+            let lineTest = stop.lines.find(stop => stop.lineID === linie.LINIEN_ID);
+            let line: Line; 
             if (!lineTest) {
-                let lineText: string | undefined;
+                let lineText = linie.BEZEICHNUNG
 
-                for (const linie of dataStore.linien) {
-                    if (linie.LineID === fahrwegverlauf.LineID) {
-                        lineText = linie.LineText;
-                        break;
-                    }
-                }
 
-                lineTest = {
-                    lineID: fahrwegverlauf.LineID,
+
+                line = {
+                    lineID: linie.LINIEN_ID,
                     lineText,
                     directions: []
                 };
 
-                stop.lines.push(lineTest);
+                stop.lines.push(line);
 
+            } else{
+                line = lineTest;
             }
 
-            // line already exists here (found or created)
-
-            const directionExists = lineTest.directions.some(
-                direction => direction.num === fahrwegverlauf.Direction
+            let targetDir = linieFromTemp.richtung
+            const directionExists = line.directions.some(
+                direction => direction.dir === targetDir
             );
 
             if (!directionExists) {
-                lineTest.directions.push({
-                    num: fahrwegverlauf.Direction,
-                    location: stopFromTemp.location
+                line.directions.push({
+                    dir: targetDir,
+                    location: linieFromTemp.location
                 });
             }
-
         });
+
+
 
         stops.push(stop);
     });
 
     fs.writeFileSync(
         "./src/data/stops.json",
-        JSON.stringify(stops, null, 0),
+        JSON.stringify(stops, null, 4),
         "utf-8"
     );
 }
@@ -129,49 +134,67 @@ function stops(dataStore: CsvDataMap) {
 function lines(dataStore: CsvDataMap) {
     let lines = new Array<LineEndstop>();
 
-    dataStore.fahrwegverlaeufe.forEach(element => {
-        if (Number(element.PatternID) <= 2 && Number(element.StopSeqCount) === 0) {
+    dataStore.steige.forEach(element => {
+        if (Number(element.REIHENFOLGE) === 1) {
 
             let lineText: string | undefined;
             let endstop: string | undefined;
 
             for (const linie of dataStore.linien) {
-                if (linie.LineID === element.LineID) {
-                    lineText = linie.LineText;
+                if (linie.LINIEN_ID === element.FK_LINIEN_ID) {
+                    lineText = linie.BEZEICHNUNG;
                     break;
                 }
             }
 
-            const maxItem = dataStore.fahrwegverlaeufe
-                .filter(item => item.StopID === element.StopID)
-                .reduce((max, current) =>
-                    Number(current) > Number(max) ? current : max
-                );
+            const sameLine = dataStore.steige.filter(
+                s => s.FK_LINIEN_ID === element.FK_LINIEN_ID
+            )
 
-            endstop = dataStore.haltepunkte.find(line => line.StopID === maxItem.StopID)?.StopText;
+            if (sameLine.length === 0) return null
+
+            let minItem = sameLine.reduce((max, current) => {
+                return Number(current.REIHENFOLGE) < Number(max.REIHENFOLGE) && current.RICHTUNG === max.RICHTUNG
+                ? current
+                : max
+            })
+
+            let maxItem = sameLine.reduce((max, current) => {
+                return Number(current.REIHENFOLGE) > Number(max.REIHENFOLGE) && current.RICHTUNG === max.RICHTUNG
+                ? current
+                : max
+            })
+
+            if(element.RICHTUNG === "H"){
+                endstop = dataStore.haltestellen.find(line => line.HALTESTELLEN_ID === maxItem.FK_HALTESTELLEN_ID)?.NAME;
+
+            } else {
+                endstop = dataStore.haltestellen.find(line => line.HALTESTELLEN_ID === minItem.FK_HALTESTELLEN_ID)?.NAME;
+
+            }
 
             if (lineText == undefined || endstop == undefined) {
                 return;
             }
 
-            if (lines.some(line => line.lineID === element.LineID)) {
-                let line = lines.find(line => line.lineID === element.LineID);
+            if (lines.some(line => line.lineID === element.FK_LINIEN_ID)) {
+                let line = lines.find(line => line.lineID === element.FK_LINIEN_ID);
 
                 if (line == undefined) {
                     return;
                 }
 
                 line.directions.push({
-                    num: element.Direction,
+                    num: element.RICHTUNG,
                     endstop
                 });
             } else {
                 lines.push({
-                    lineID: element.LineID,
+                    lineID: element.FK_LINIEN_ID,
                     lineText,
                     directions: [
                         {
-                            num: element.Direction,
+                            num: element.RICHTUNG,
                             endstop
                         }
                     ]
@@ -183,7 +206,7 @@ function lines(dataStore: CsvDataMap) {
 
     fs.writeFileSync(
         "./src/data/lines.json",
-        JSON.stringify(lines, null, 0),
+        JSON.stringify(lines, null, 4),
         "utf-8"
     );
 }
@@ -195,20 +218,18 @@ const delay = RETRY_DELAY_MS * attempt;
 
 while (attempt < MAX_RETRIES) {
     try {
-        const csvBaseUrl = "https://www.wienerlinien.at/ogd_realtime/doku/ogd/wienerlinien-ogd-";
+        const csvBaseUrl = "https://data.wien.gv.at/csv/wienerlinien-ogd-";
 
         const dataStore: CsvDataMap = {
-            haltepunkte: [],
             haltestellen: [],
-            fahrwegverlaeufe: [],
+            steige: [],
             linien: [],
         };
 
         const fileNamens = [
-            "haltepunkte",
             "haltestellen",
-            "fahrwegverlaeufe",
             "linien",
+            "steige",
         ];
 
         for (const fileName of fileNamens) {
@@ -216,12 +237,10 @@ while (attempt < MAX_RETRIES) {
             const csvText = await downloadCSV(csvUrl);
             const jsonData = csvToJson(csvText);
 
-            if (fileName === "haltepunkte") {
-                dataStore.haltepunkte = jsonData as Haltepunkt[];
-            } else if (fileName === "haltestellen") {
+            if (fileName === "haltestellen") {
                 dataStore.haltestellen = jsonData as Haltestelle[];
-            } else if (fileName === "fahrwegverlaeufe") {
-                dataStore.fahrwegverlaeufe = jsonData as Fahrwegverlauf[];
+            } else if (fileName === "steige") {
+                dataStore.steige = jsonData as Steige[];
             } else {
                 dataStore.linien = jsonData as Linie[];
             }

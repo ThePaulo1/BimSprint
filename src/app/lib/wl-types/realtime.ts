@@ -10,7 +10,7 @@ type Monitor = {
 
 type Line = {
     lineId: number;
-    richtungsId: string;
+    direction: string;
     departures: Departures;
 }
 
