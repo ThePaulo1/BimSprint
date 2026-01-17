@@ -4,6 +4,24 @@ import Flatbush from 'flatbush';
 import {around} from 'geoflatbush';
 import {Line} from "@/types/Line";
 import {Direction} from "@/types/Direction";
+import { z } from "zod";
+
+const DEFAULT_COLORS = {
+    red: "#ef4444",
+    yellow: "#eab308",
+    green: "#22c55e"
+};
+
+const PreferenceSchema = z.object({
+    favourites: z.array(z.string()),
+    colors: z.object({
+        red: z.string(),
+        yellow: z.string(),
+        green: z.string(),
+    })
+});
+
+export type Preference = z.infer<typeof PreferenceSchema>;
 
 const index = new Flatbush(stops.length);
 
@@ -27,18 +45,50 @@ export const getStopLineByDiva = (diva: string, lineId: string, direction: strin
 export const getFavorites = (): string[] => {
     if (typeof window === 'undefined') return [];
 
-    const favs = localStorage.getItem('bimsprint_favorites');
-    return favs ? JSON.parse(favs) : [];
+    const preferences = localStorage.getItem('bimsprint_preferences');
+    return preferences ? JSON.parse(preferences).favourites : [];
 };
 
 export const toggleFavorite = (diva: string): string[] => {
-    const favs = getFavorites();
-    const isFav = favs.includes(diva);
+    const raw = localStorage.getItem('bimsprint_preferences');
+    const preferences: Preference = JSON.parse(raw || 'null') || { favourites: [], colors: DEFAULT_COLORS};
 
-    const newFavs = isFav
-        ? favs.filter(id => id !== diva)
-        : [...favs, diva];
+    const newFavs = preferences.favourites.includes(diva)
+        ? preferences.favourites.filter(id => id !== diva)
+        : [...preferences.favourites, diva];
 
-    localStorage.setItem('bimsprint_favorites', JSON.stringify(newFavs));
+    localStorage.setItem('bimsprint_preferences', JSON.stringify({ ...preferences, favourites: newFavs }));
+
     return newFavs;
+};
+
+
+export const savePreferences = () => {
+    const data = localStorage.getItem('bimsprint_preferences') || "";
+    const blob = new Blob([data], { type: "application/json" });
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+
+    link.download = "bimsprint-preferences.json";
+    link.click();
+};
+
+export const readPreferences = (file: File): Promise<boolean> => {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const json = JSON.parse(e.target?.result as string);
+                const preferences = PreferenceSchema.parse(json);
+
+                localStorage.setItem('bimsprint_preferences', JSON.stringify(preferences));
+                resolve(true);
+            } catch (err) {
+                alert("Invalid File Format")
+                resolve(false);
+            }
+        };
+        reader.readAsText(file);
+    });
 };
