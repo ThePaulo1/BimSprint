@@ -50,6 +50,14 @@ export const getFavorites = (): string[] => {
     return favs ? JSON.parse(favs) : [];
 };
 
+export const getPreferences = (): Preference => {
+    if (typeof window === 'undefined')
+        return { favourites: [], colors: DEFAULT_COLORS };
+
+    const raw = localStorage.getItem('bimsprint_preferences');
+    return JSON.parse(raw || 'null') || { favourites: [], colors: DEFAULT_COLORS };
+};
+
 export const toggleFavorite = (diva: string): string[] => {
     const favs = getFavorites();
     const isFav = favs.includes(diva);
@@ -83,6 +91,14 @@ export const getMonitorByDivaLineDirection = async (diva: string, lineId: string
             )
         )
 
+
+export const updateSignalColor = (key: 'red' | 'yellow' | 'green', newHex: string) => {
+    const raw = localStorage.getItem('bimsprint_preferences');
+    const preferences = JSON.parse(raw || 'null') || { favourites: [], colors: DEFAULT_COLORS };
+
+    preferences.colors[key] = newHex;
+    localStorage.setItem('bimsprint_preferences', JSON.stringify(preferences));
+};
 
 export const savePreferences = () => {
     const data = localStorage.getItem('bimsprint_preferences') || "";
