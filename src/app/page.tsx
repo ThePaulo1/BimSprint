@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import {IconChevronRight, IconHeart, IconHeartFilled, IconMapPin} from "@tabler/icons-react";
-import {useLocationStore} from "@/store/userLocationStore";
+import {useUserLocationStore} from "@/store/userLocationStore";
 import {useEffect, useMemo, useState, MouseEvent} from "react";
 import {getFavorites, getNearestStops, toggleFavorite} from "@/app/lib/utils";
 import {useShallow} from "zustand/react/shallow";
 
 export default function Stops() {
-    const {lat, lon} = useLocationStore(useShallow((s) => ({lat: s.lat, lon: s.lon})));
+    const {lat, lon} = useUserLocationStore(useShallow((s) => ({lat: s.lat, lon: s.lon})));
     const [favIds, setFavIds] = useState<string[]>([]);
 
     useEffect(() => {

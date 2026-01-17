@@ -2,7 +2,7 @@
 
 import {useMantineColorScheme} from '@mantine/core';
 import {IconBrightnessFilled, IconMoonFilled, IconSunLowFilled} from '@tabler/icons-react';
-import {setTheme} from "../app/lib/cookies";
+import {setTheme} from "@/app/lib/cookies";
 
 export default function ThemePicker() {
     const {colorScheme, setColorScheme} = useMantineColorScheme();
