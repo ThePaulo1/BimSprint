@@ -17,7 +17,7 @@ type ScheduleLocationItemStore = {
 }
 
 
-export const useScheduleStore = create(
+export const useScheduleLocationStore = create(
   persist<ScheduleLocationItemStore>(
     (set) => ({
       items: [],

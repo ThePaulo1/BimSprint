@@ -1,6 +1,6 @@
 "use client"
 
-import {useScheduleStore} from "@/store/userScheduleLocationStore"
+import {useScheduleLocationStore} from "@/store/userScheduleLocationStore"
 import {useLocationStore} from "@/store/userLocationStore";
 import {useShallow} from "zustand/react/shallow";
 
@@ -29,7 +29,7 @@ export default function SafeTime({diva}: MetricsProps) {
     const [resultMessage, setResultMessage] = useState("");
 
 
-    const { items, addItem } = useScheduleStore()
+    const { items, addItem } = useScheduleLocationStore()
 
     const handleScheduleSafe = () => {
         console.log("trying to save");
