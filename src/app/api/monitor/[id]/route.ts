@@ -24,7 +24,7 @@ export async function GET(request: NextRequest, {params}: { params: Promise<{ id
 
         const data = monitors
             .filter(monitor =>
-                monitor.lines.filter(line => line.lineId === Number(lineId) && line.richtungsId === direction))[0]
+                monitor.lines.filter(line => line.lineId === Number(lineId) && line.direction === direction))[0]
             .lines[0]
             .departures
             .departure

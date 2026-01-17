@@ -126,7 +126,7 @@ function stops(dataStore: CsvDataMap) {
 
     fs.writeFileSync(
         "./src/data/stops.json",
-        JSON.stringify(stops, null, 4),
+        JSON.stringify(stops, null, 0),
         "utf-8"
     );
 }
@@ -206,7 +206,7 @@ function lines(dataStore: CsvDataMap) {
 
     fs.writeFileSync(
         "./src/data/lines.json",
-        JSON.stringify(lines, null, 4),
+        JSON.stringify(lines, null, 0),
         "utf-8"
     );
 }
