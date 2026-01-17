@@ -2,9 +2,11 @@
 
 import {useEffect, useMemo, useState} from "react";
 import distance from "@turf/distance";
-import {useLocationStore} from "@/store/userLocationStore";
+import {useUserLocationStore} from "@/store/userLocationStore";
 import {useShallow} from "zustand/react/shallow";
 import {Location} from "@/types/Direction";
+import {getPreferences} from "@/app/lib/utils";
+import {useUserPreferencesStore} from "@/store/userPreferencesStore";
 
 interface MetricsProps {
     name: string;
@@ -14,18 +16,18 @@ interface MetricsProps {
     monitors: number[];
 }
 
-const STATUS = {
-    UNREACHABLE: "#aa2525",
-    MAYBE_REACHABLE: "#d0a838",
-    REACHABLE: "#90c874"
-};
-
 export default function Metrics({name, location, lineText, direction, monitors}: MetricsProps) {
     const [minutesLeft, setMinutesLeft] = useState(0);
     const [activeColor, setActiveColor] = useState("yellow");
     const [statusText, setStatusText] = useState("Beeilung");
-    const {lat, lon, speed} = useLocationStore(useShallow((s) => ({lat: s.lat, lon: s.lon, speed: s.speed})));
+    const {lat, lon, speed} = useUserLocationStore(useShallow((s) => ({lat: s.lat, lon: s.lon, speed: s.speed})));
     const speeds = [1.4] // init with average adult walking speed in m/s
+    const {colors} = useUserPreferencesStore()
+    const STATUS = {
+        UNREACHABLE: colors.red,
+        MAYBE_REACHABLE: colors.yellow,
+        REACHABLE: colors.green
+    };
 
     const distanceToStop = useMemo(() => {
         if (!lat || !lon) return 0;
@@ -47,7 +49,7 @@ export default function Metrics({name, location, lineText, direction, monitors}:
     }
 
     const reachabilityStatus = useMemo(() => {
-        if (!lat || !lon) return STATUS.UNREACHABLE;
+        if (!lat || !lon) return colors.red;
 
         if (speed > 0.2)
             speeds.push(speed / 3.6) // speed in m/s
@@ -59,12 +61,12 @@ export default function Metrics({name, location, lineText, direction, monitors}:
         console.log("timeUntilDeparture:", timeUntilDeparture(), movingAverage, "timeToReachStop:", timeToReachStop)
 
         if (ratio >= 1.1) {
-            return STATUS.REACHABLE;
+            return colors.green;
         } else if (ratio >= 0.85) {
-            return STATUS.MAYBE_REACHABLE;
+            return colors.yellow;
         }
-        return STATUS.UNREACHABLE;
-    }, [speed]);
+        return colors.red;
+    }, [speed, colors]);
 
     useEffect(() => {
         const update = () => setMinutesLeft(Math.floor(timeUntilDeparture() / 60))

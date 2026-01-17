@@ -4,15 +4,9 @@ import Flatbush from 'flatbush';
 import {around} from 'geoflatbush';
 import {Line} from "@/types/Line";
 import {Direction} from "@/types/Direction";
-import { z } from "zod";
+import {z} from "zod";
 
-const DEFAULT_COLORS = {
-    red: "#ef4444",
-    yellow: "#eab308",
-    green: "#22c55e"
-};
-
-const PreferenceSchema = z.object({
+export const PreferenceSchema = z.object({
     favourites: z.array(z.string()),
     colors: z.object({
         red: z.string(),
@@ -20,6 +14,12 @@ const PreferenceSchema = z.object({
         green: z.string(),
     })
 });
+
+const DEFAULT_COLORS = {
+    red: "#ef4444",
+    yellow: "#eab308",
+    green: "#22c55e"
+};
 
 export type Preference = z.infer<typeof PreferenceSchema>;
 import {ApiResponse, Monitor} from "@/app/lib/wl-types/realtime";
@@ -40,8 +40,11 @@ export const getNearestStops = (lon: number, lat: number, amount = 10): Stop[] =
 export const getStopByDiva = (diva: string) =>
     (stops.find(stop => stop.diva === diva) as Stop)
 
-export const getStopLineByDiva = (diva: string, lineId: string, direction: string) =>
-    (getStopByDiva(diva).lines.find(line => line.lineID === lineId)?.directions.find(line => line.num === direction) as Direction)
+export const getStopLineByDivaLineDirection = (diva: string, lineId: string, direction: string) =>
+    getStopByDiva(diva).lines
+        .find(line => line.lineID === lineId)
+        ?.directions
+        .find(line => line.num === direction) as Direction
 
 export const getFavorites = (): string[] => {
     if (typeof window === 'undefined') return [];
@@ -91,18 +94,9 @@ export const getMonitorByDivaLineDirection = async (diva: string, lineId: string
             )
         )
 
-
-export const updateSignalColor = (key: 'red' | 'yellow' | 'green', newHex: string) => {
-    const raw = localStorage.getItem('bimsprint_preferences');
-    const preferences = JSON.parse(raw || 'null') || { favourites: [], colors: DEFAULT_COLORS };
-
-    preferences.colors[key] = newHex;
-    localStorage.setItem('bimsprint_preferences', JSON.stringify(preferences));
-};
-
 export const savePreferences = () => {
     const data = localStorage.getItem('bimsprint_preferences') || "";
-    const blob = new Blob([data], { type: "application/json" });
+    const blob = new Blob([data], {type: "application/json"});
 
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
