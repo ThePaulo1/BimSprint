@@ -4,75 +4,75 @@ import {useEffect, useMemo, useState} from "react";
 import distance from "@turf/distance";
 import {useLocationStore} from "@/store/userLocationStore";
 import {useShallow} from "zustand/react/shallow";
-import {useSearchParams} from "next/navigation";
-import {getNearestStops, getStopLineByDiva} from "@/app/lib/utils";
-import { validMethods } from "serwist/dist/constants";
+import {Location} from "@/types/Direction";
 
 interface MetricsProps {
-    diva: string;
+    name: string;
+    lineText: string;
+    direction: string;
+    location: Location;
+    monitors: number[];
 }
 
-export default function Metrics({diva}: MetricsProps) {
+const STATUS = {
+    UNREACHABLE: "#aa2525",
+    MAYBE_REACHABLE: "#d0a838",
+    REACHABLE: "#90c874"
+};
+
+export default function Metrics({name, location, lineText, direction, monitors}: MetricsProps) {
     const [minutesLeft, setMinutesLeft] = useState(0);
     const [activeColor, setActiveColor] = useState("yellow");
     const [statusText, setStatusText] = useState("Beeilung");
     const {lat, lon, speed} = useLocationStore(useShallow((s) => ({lat: s.lat, lon: s.lon, speed: s.speed})));
-    const searchParams = useSearchParams()
-    const line = searchParams.get("line") ?? "";
-    const direction = searchParams.get("dir") ?? "";
+    const speeds = [1.4] // init with average adult walking speed in m/s
 
     const distanceToStop = useMemo(() => {
         if (!lat || !lon) return 0;
 
-        const stopLine = getStopLineByDiva(diva, line, direction)
-        return distance([lat, lon], [stopLine.location.lat, stopLine.location.lon], {units: "meters"})
-    }, [lat, lon, diva, line, direction]);
+        return distance([lat, lon], [location.lat, location.lon], {units: "meters"})
+    }, [lat, lon, lineText, direction]);
 
+    const timeUntilDeparture = () => {
+        const now = Date.now();
+        let departureTime = monitors.find(departure => departure - now > 0)
 
+        if (!departureTime) {
+            // fetch()
+            departureTime = 0
+            console.log("missing departure times");
+        }
+
+        return (departureTime - now) / 1000;
+    }
+
+    const reachabilityStatus = useMemo(() => {
+        if (!lat || !lon) return STATUS.UNREACHABLE;
+
+        if (speed > 0.2)
+            speeds.push(speed / 3.6) // speed in m/s
+
+        const movingAverage = speeds.reduce((a, b) => a + b) / speeds.length;
+        const timeToReachStop = distanceToStop / movingAverage
+        const ratio = timeUntilDeparture() / timeToReachStop;
+
+        console.log("timeUntilDeparture:", timeUntilDeparture(), movingAverage, "timeToReachStop:", timeToReachStop)
+
+        if (ratio >= 1.1) {
+            return STATUS.REACHABLE;
+        } else if (ratio >= 0.85) {
+            return STATUS.MAYBE_REACHABLE;
+        }
+        return STATUS.UNREACHABLE;
+    }, [speed]);
 
     useEffect(() => {
-        const timestamps: string[] = [];
+        const update = () => setMinutesLeft(Math.floor(timeUntilDeparture() / 60))
+        update()
+        const interval = setInterval(update, 1000);
 
-        fetch(`/api/monitor/${diva}?line=${line}&dir=${direction}`)
-        .then(res => {
-            if (!res.ok) {throw new Error(`HTTP error! status: ${res.status}`); }
-            return res.json();})
-        .then((data: string[]) => {
-            timestamps.push(...data);})
-        .then(() => {
-            let targetTime = 0;           
-            let diff: number = 0;     
-            const interval = setInterval(() => {
-                
-
-
-
-                if(diff <= 5){
-                    targetTime = timestamps
-                    .map(ts => new Date(ts).getTime())
-                    .find(tsTime => tsTime - Date.now() > 60 * 1000) ?? 0;
-
-                    console.log(targetTime);
-
-                    if(!targetTime) {
-                        console.log("none applicabe found");
-                        return;
-                    }
-                } 
-                diff = (targetTime - Date.now())/1000 ;                    
-                setMinutesLeft(Math.floor(diff / (60))); 
-                
-    
-            }, 5000);
-            
-            return () => clearInterval(interval);
-        })
-        .catch((error: any) => {
-            setMinutesLeft(0);
-        });
-
-
-    }, []);
+        return () => clearInterval(interval);
+    }, [timeUntilDeparture]);
 
     return (
         <div className="flex flex-col items-center justify-center h-full overflow-hidden">
@@ -82,11 +82,11 @@ export default function Metrics({diva}: MetricsProps) {
                 {/* Core */}
                 <div
                     className="w-64 h-64 rounded-full blur-3xl opacity-20 animate-pulse-slow absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-colors duration-1000"
-                    style={{backgroundColor: activeColor}}
+                    style={{backgroundColor: reachabilityStatus}}
                 />
                 <div
                     className="w-48 h-48 rounded-full animate-breathing dark:shadow-black/50 shadow-gray-300/50 shadow-[0_0_60px] flex items-center justify-center transition-colors duration-1000 relative z-10"
-                    style={{backgroundColor: activeColor}}
+                    style={{backgroundColor: reachabilityStatus}}
                 >
                     {/* Distance in center of orb */}
                     <div

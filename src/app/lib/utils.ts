@@ -4,6 +4,7 @@ import Flatbush from 'flatbush';
 import {around} from 'geoflatbush';
 import {Line} from "@/types/Line";
 import {Direction} from "@/types/Direction";
+import {ApiResponse, Monitor} from "@/app/lib/wl-types/realtime";
 
 const index = new Flatbush(stops.length);
 
@@ -21,8 +22,11 @@ export const getNearestStops = (lon: number, lat: number, amount = 10): Stop[] =
 export const getStopByDiva = (diva: string) =>
     (stops.find(stop => stop.diva === diva) as Stop)
 
-export const getStopLineByDiva = (diva: string, lineId: string, direction: string) =>
-    (getStopByDiva(diva).lines.find(line => line.lineID === lineId)?.directions.find(line => line.num === direction) as Direction)
+export const getStopLineByDivaLineDirection = (diva: string, lineId: string, direction: string) =>
+    getStopByDiva(diva).lines
+        .find(line => line.lineID === lineId)
+        ?.directions
+        .find(line => line.num === direction) as Direction
 
 export const getFavorites = (): string[] => {
     if (typeof window === 'undefined') return [];
@@ -42,3 +46,24 @@ export const toggleFavorite = (diva: string): string[] => {
     localStorage.setItem('bimsprint_favorites', JSON.stringify(newFavs));
     return newFavs;
 };
+
+export const getMonitorsForStop = async (diva: string) =>
+    await fetch("https://www.wienerlinien.at/ogd_realtime/monitor?diva=" + diva,
+        {
+            next: {revalidate: 180},
+            cache: "force-cache",
+            headers: {
+                "Content-Type": "application/json",
+                "User-Agent": "BimSprint (first public transport fortune teller)",
+            },
+        })
+        .then(res => res.json())
+        .then((data: ApiResponse) => data.data.monitors)
+
+export const getMonitorByDivaLineDirection = async (diva: string, lineId: string, direction: string) =>
+    await getMonitorsForStop(diva)
+        .then(monitors =>
+            monitors.find(monitor => monitor.lines
+                .some(line => line.lineId === Number(lineId) && line.richtungsId === direction)
+            )
+        )

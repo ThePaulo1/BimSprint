@@ -1,18 +1,18 @@
 import Link from "next/link";
 import {IconArrowRight, IconTrain} from "@tabler/icons-react";
-import {getStopByDiva} from "@/app/lib/utils";
+import {getMonitorsForStop, getStopByDiva} from "@/app/lib/utils";
 import linesData from "@/data/lines.json";
 
 interface StopProps {
     params: Promise<{ id: string }>;
 }
 
-export default async function StopDetail({ params }: StopProps) {
-    const { id } = await params;
-    const divaId = decodeURIComponent(id);
-
-    const stop = getStopByDiva(divaId);
+export default async function StopDetail({params}: StopProps) {
+    const {id} = await params;
+    const diva = decodeURIComponent(id);
+    const stop = getStopByDiva(diva);
     const stopName = stop.stop.name;
+    await getMonitorsForStop(diva) // prefetch for monitor site
 
     if (!stop || !stopName) {
         return (
@@ -20,7 +20,7 @@ export default async function StopDetail({ params }: StopProps) {
                 <h1 className="text-xl font-bold text-white">
                     Haltestelle nicht gefunden
                 </h1>
-                <p className="text-slate-500">ID: {divaId}</p>
+                <p className="text-slate-500">ID: {diva}</p>
             </div>
         );
     }

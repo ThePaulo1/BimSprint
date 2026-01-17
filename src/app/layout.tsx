@@ -8,7 +8,7 @@ import {ColorSchemeScript, mantineHtmlProps, MantineProvider} from '@mantine/cor
 import Banner from "../components/Banner";
 import {getBannerOpen, getTheme} from "./lib/cookies";
 import OfflineHint from "../components/OfflineHint";
-import {LocationInitializer} from "@/components/LocationInitializer";
+import {LocationStoreProvider} from "@/components/LocationStoreProvider";
 
 export const metadata: Metadata = {
     applicationName: constants.name,
@@ -52,7 +52,7 @@ export default async function RootLayout({children}: { children: ReactNode }) {
             <ColorSchemeScript/>
         </head>
         <body className="w-screen max-w-screen dark:bg-darkmode-gray h-dvh max-h-dvh">
-        <LocationInitializer />
+        <LocationStoreProvider />
         <MantineProvider defaultColorScheme="auto">
             <div className="flex flex-col gap-y-3 max-h-full h-dvh">
                 <Banner isBannerOpenInit={isBannerOpen}/>
