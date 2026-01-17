@@ -4,6 +4,7 @@ import Flatbush from 'flatbush';
 import {around} from 'geoflatbush';
 import {Line} from "@/types/Line";
 import {Direction} from "@/types/Direction";
+import { z } from "zod";
 
 const DEFAULT_COLORS = {
     red: "#ef4444",
@@ -11,14 +12,16 @@ const DEFAULT_COLORS = {
     green: "#22c55e"
 };
 
-export type Preference = {
-    favourites: string[];
-    colors: {
-        red: string;
-        yellow: string;
-        green: string;
-    };
-};
+const PreferenceSchema = z.object({
+    favourites: z.array(z.string()),
+    colors: z.object({
+        red: z.string(),
+        yellow: z.string(),
+        green: z.string(),
+    })
+});
+
+export type Preference = z.infer<typeof PreferenceSchema>;
 
 const index = new Flatbush(stops.length);
 
@@ -83,7 +86,7 @@ export const savePreferences = () => {
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
 
-    link.download = "preferences.json";
+    link.download = "bimsprint-preferences.json";
     link.click();
 };
 
@@ -91,10 +94,16 @@ export const readPreferences = (file: File): Promise<boolean> => {
     return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-            const content = e.target?.result as string;
-            localStorage.setItem('bimsprint_preferences', content);
+            try {
+                const json = JSON.parse(e.target?.result as string);
+                const preferences = PreferenceSchema.parse(json);
 
-            resolve(true);
+                localStorage.setItem('bimsprint_preferences', JSON.stringify(preferences));
+                resolve(true);
+            } catch (err) {
+                alert("Invalid File Format")
+                resolve(false);
+            }
         };
         reader.readAsText(file);
     });
