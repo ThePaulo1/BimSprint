@@ -6,6 +6,7 @@ import {useUserLocationStore} from "@/store/userLocationStore";
 import {useShallow} from "zustand/react/shallow";
 import {Location} from "@/types/Direction";
 import {useUserPreferencesStore} from "@/store/userPreferencesStore";
+import {IconWalk} from "@tabler/icons-react";
 
 interface MetricsProps {
     name: string;
@@ -17,10 +18,14 @@ interface MetricsProps {
 
 export default function Metrics({name, location, lineText, direction, monitors}: MetricsProps) {
     const [minutesLeft, setMinutesLeft] = useState(0);
+    const [minutesLeftNext, setMinutesLeftNext] = useState(0);
+    const [nextDeparture, setNextDeparture] = useState(0);
     const [statusText, setStatusText] = useState("");
+    const [statusTextNext, setStatusTextNext] = useState("");
     const {lat, lon, speed} = useUserLocationStore(useShallow((s) => ({lat: s.lat, lon: s.lon, speed: s.speed})));
     const speeds = [1.4] // init with average adult walking speed in m/s
     const {colors} = useUserPreferencesStore()
+    const [colorNext, setColorNext] = useState(colors.red);
 
     const distanceToStop = useMemo(() => {
         if (!lat || !lon) return 0;
@@ -30,7 +35,9 @@ export default function Metrics({name, location, lineText, direction, monitors}:
 
     const timeUntilDeparture = () => {
         const now = Date.now();
-        let departureTime = monitors.find(departure => departure - now > 0)
+        const departureTimeIndex = monitors.findIndex(departure => departure - now > 0)
+        let departureTime = monitors[departureTimeIndex]
+        setNextDeparture((monitors[departureTimeIndex + 1] - now) / 1000)
 
         if (!departureTime) {
             // fetch()
@@ -41,15 +48,30 @@ export default function Metrics({name, location, lineText, direction, monitors}:
         return (departureTime - now) / 1000;
     }
 
+    const calculateReachabilityRation = (departureTime: number) => {
+        const movingAverage = speeds.reduce((a, b) => a + b) / speeds.length;
+        const timeToReachStop = distanceToStop / movingAverage
+        return timeUntilDeparture() / timeToReachStop;
+    }
+
     const reachabilityStatus = useMemo(() => {
         if (!lat || !lon) return colors.red;
 
         if (speed > 0.2)
             speeds.push(speed / 3.6) // speed in m/s
 
-        const movingAverage = speeds.reduce((a, b) => a + b) / speeds.length;
-        const timeToReachStop = distanceToStop / movingAverage
-        const ratio = timeUntilDeparture() / timeToReachStop;
+        const ratio = calculateReachabilityRation(timeUntilDeparture())
+        const nextRatio = calculateReachabilityRation(nextDeparture)
+
+        if (nextRatio >= 1.1) {
+            setStatusTextNext("No stress")
+            setColorNext(colors.green)
+        } else if (nextRatio >= 0.85) {
+            setStatusTextNext("Hurry up")
+            setColorNext(colors.yellow)
+        }
+        setStatusTextNext("Miracle needed")
+        setColorNext(colors.red)
 
         if (ratio >= 1.1) {
             setStatusText("No stress")
@@ -63,7 +85,10 @@ export default function Metrics({name, location, lineText, direction, monitors}:
     }, [speed, colors]);
 
     useEffect(() => {
-        const update = () => setMinutesLeft(Math.floor(timeUntilDeparture() / 60))
+        const update = () => {
+            setMinutesLeft(Math.floor(timeUntilDeparture() / 60))
+            setMinutesLeftNext(Math.floor(nextDeparture / 60))
+        }
         update()
         const interval = setInterval(update, 1000);
 
@@ -114,20 +139,30 @@ export default function Metrics({name, location, lineText, direction, monitors}:
                 </p>
             </div>
 
-            {/* Dynamic Warning / Next Connection (ChatGPT Response Bubble Style) */}
-            {/*{nextConnectionPreview && (*/}
-            {/*    <div className="absolute bottom-10 mx-6 bg-[#2f2f2f] text-gpt-text p-4 rounded-xl flex items-start gap-3 shadow-lg border border-gpt-border/50 animate-in fade-in slide-in-from-bottom-4 z-20">*/}
-            {/*        <div className="mt-0.5">*/}
-            {/*            <RefreshCw size={16} className="text-gpt-textSecondary" />*/}
-            {/*        </div>*/}
-            {/*        <div className="text-sm">*/}
-            {/*            <p className="font-medium mb-1">Empfehlung</p>*/}
-            {/*            <p className="text-gpt-textSecondary leading-relaxed">*/}
-            {/*                Sie werden diese Verbindung voraussichtlich verpassen. Die nächste Bahn kommt in {minutesLeft + 5} Minuten.*/}
-            {/*            </p>*/}
-            {/*        </div>*/}
-            {/*    </div>*/}
-            {/*)}*/}
+            {reachabilityStatus === colors.red && (
+                <div
+                    className="absolute bottom-6 mx-6 max-w-sm w-[90%] backdrop-blur-md bg-white/80 dark:bg-neutral-900/80 rounded-2xl flex items-start gap-4 shadow-xl border border-white/20 dark:border-white/10 animate-in slide-in-from-bottom-6 fade-in duration-500 z-30"
+                >
+                    <div
+                        className="p-2 rounded-full mt-0.5"
+                        style={{backgroundColor: colorNext}}
+                    >
+                        <IconWalk size={20}/>
+                    </div>
+                    <div>
+                        <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-0.5">
+                            Next departure
+                        </p>
+                        <p className="text-gray-600 dark:text-gray-400 text-xs leading-relaxed">
+                            {minutesLeftNext
+                                ? <span
+                                    className="text-gray-900 dark:text-gray-200 font-medium"> {statusTextNext} • {minutesLeftNext} min left</span>
+                                : " No later departures found."
+                            }
+                        </p>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
