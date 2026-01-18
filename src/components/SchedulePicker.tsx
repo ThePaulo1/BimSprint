@@ -7,18 +7,11 @@ import {useUserLocationStore} from "@/store/userLocationStore";
 
 type SchedulePickerProps = {
     diva: string;
-<<<<<<< HEAD
     lineId: string;
     line: string;
     dir: string;
 }
 export default function SchedulePicker({diva, line, lineId, dir}: SchedulePickerProps) {
-=======
-    line: string;
-    dir: string;
-}
-export default function SchedulePicker({diva, line, dir}: SchedulePickerProps) {
->>>>>>> main
     const {schedules, setSchedule} = useUserPreferencesStore()
     const {lat, lon} = useUserLocationStore()
     const schedule = schedules?.find(s =>
@@ -33,10 +26,7 @@ export default function SchedulePicker({diva, line, dir}: SchedulePickerProps) {
         setSchedule({
             diva,
             line,
-<<<<<<< HEAD
             lineId,
-=======
->>>>>>> main
             dir,
             location: schedule?.location,
             time: {
@@ -54,10 +44,7 @@ export default function SchedulePicker({diva, line, dir}: SchedulePickerProps) {
         setSchedule({
             diva,
             line,
-<<<<<<< HEAD
             lineId,
-=======
->>>>>>> main
             dir,
             location: location,
             time: schedule?.time
@@ -80,7 +67,7 @@ export default function SchedulePicker({diva, line, dir}: SchedulePickerProps) {
                 label="End time"
                 value={endTime}
                 leftSection={<IconClock size={16}/>}
-                onChange={(time) => handleTimeChange('start', time)}
+                onChange={(time) => handleTimeChange('end', time)}
                 className="max-w-fit"
                 classNames={{field: "text-center!"}}
                 clearable
