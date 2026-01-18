@@ -8,6 +8,7 @@ export type Monitor = {
     locationStop: {
         properties: {
             title: string;
+            name: string;
         }
     }
     lines: Line[];

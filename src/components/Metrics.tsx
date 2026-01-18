@@ -17,16 +17,10 @@ interface MetricsProps {
 
 export default function Metrics({name, location, lineText, direction, monitors}: MetricsProps) {
     const [minutesLeft, setMinutesLeft] = useState(0);
-    const [activeColor, setActiveColor] = useState("yellow");
-    const [statusText, setStatusText] = useState("Beeilung");
+    const [statusText, setStatusText] = useState("");
     const {lat, lon, speed} = useUserLocationStore(useShallow((s) => ({lat: s.lat, lon: s.lon, speed: s.speed})));
     const speeds = [1.4] // init with average adult walking speed in m/s
     const {colors} = useUserPreferencesStore()
-    const STATUS = {
-        UNREACHABLE: colors.red,
-        MAYBE_REACHABLE: colors.yellow,
-        REACHABLE: colors.green
-    };
 
     const distanceToStop = useMemo(() => {
         if (!lat || !lon) return 0;
@@ -57,13 +51,14 @@ export default function Metrics({name, location, lineText, direction, monitors}:
         const timeToReachStop = distanceToStop / movingAverage
         const ratio = timeUntilDeparture() / timeToReachStop;
 
-        console.log("timeUntilDeparture:", timeUntilDeparture(), movingAverage, "timeToReachStop:", timeToReachStop)
-
         if (ratio >= 1.1) {
+            setStatusText("No stress")
             return colors.green;
         } else if (ratio >= 0.85) {
+            setStatusText("Hurry up")
             return colors.yellow;
         }
+        setStatusText("Miracle needed")
         return colors.red;
     }, [speed, colors]);
 
@@ -109,8 +104,13 @@ export default function Metrics({name, location, lineText, direction, monitors}:
                 <h2 className="text-3xl font-semibold dark:text-darkmode-soft-white tracking-tight animate-in fade-in slide-in-from-bottom-4 duration-700">
                     {statusText}
                 </h2>
-                <p className="text-darkmode-soft-gray text-base">
-                    {(speed || 0).toFixed(1)} km/h • {minutesLeft} min bis Abfahrt
+                <p className="text-gray-600 dark:text-darkmode-soft-gray text-base">
+                    {(speed || 0).toFixed(1)} km/h • {minutesLeft} min left
+                </p>
+                <p className="text-darkmode-soft-gray dark:text-gray-600  text-base">
+                    {name}
+                    <br/>
+                    {lineText} {">"} {direction}
                 </p>
             </div>
 

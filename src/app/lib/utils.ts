@@ -25,7 +25,7 @@ export const getStopLineByDivaLineDirection = (diva: string, lineId: string, dir
     getStopByDiva(diva).lines
         .find(line => line.lineID === lineId)
         ?.directions
-        .find(line => line.num === direction) as Direction
+        .find(line => line.dir === direction) as Direction
 
 export const getMonitorsForStop = async (diva: string) =>
     await fetch("https://www.wienerlinien.at/ogd_realtime/monitor?diva=" + diva,
@@ -38,12 +38,12 @@ export const getMonitorsForStop = async (diva: string) =>
             },
         })
         .then(res => res.json())
-        .then((data: ApiResponse) => data.data.monitors)
+        .then((data: ApiResponse) => data.data?.monitors ?? [])
 
 export const getMonitorByDivaLineDirection = async (diva: string, lineId: string, direction: string) =>
     await getMonitorsForStop(diva)
         .then(monitors =>
-            monitors.find(monitor => monitor.lines
-                .some(line => line.lineId === Number(lineId) && line.richtungsId === direction)
+            monitors.find(monitor =>
+                monitor.lines.some(line => line.name === lineId && line.direction === direction)
             )
         )

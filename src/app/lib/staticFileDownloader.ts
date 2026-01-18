@@ -1,263 +1,250 @@
-import {parse} from "csv-parse/sync";
+import { parse } from "csv-parse/sync";
 import * as fs from "fs";
+import { setTimeout as sleep } from 'node:timers/promises';
 
+// Types
+import type { LineEndstop, Location } from "@/types/Direction";
+import type { Stop } from "@/types/Stop";
+import type { Line } from "@/types/Line";
+import type { Haltestelle, Linie, Steige } from "@/app/lib/wl-types/features";
 
-import type {LineEndstop, Location} from "@/types/Direction";
-import type {Stop} from "@/types/Stop";
-import { Line } from "@/types/Line";
-import type {Steige, Haltestelle, Linie} from "@/app/lib/wl-types/features";
+// --- CONFIGURATION ---
+const URL_BASE = "https://data.wien.gv.at/csv/wienerlinien-ogd-";
+const FILES = ["haltestellen", "linien", "steige"] as const;
+const OUTPUT_DIR = "./src/data";
 
-import {setTimeout as sleep} from 'node:timers/promises';
-import { setegid } from "node:process";
-
-
-type CsvDataMap = {
-    haltestellen: Haltestelle[];
-    linien: Linie[];
-    steige: Steige[];
-}
-
-type temp = {
-    stopID: string;
-    location: Location;
-    linieID: string;
-    richtung: string;
-}
+// --- HELPER TYPES ---
+type SteigeGroupedByStop = Map<string, Steige[]>; // Key: HALTESTELLEN_ID
+type SteigeGroupedByLine = Map<string, Steige[]>; // Key: LINIEN_ID
+type LinieMap = Map<string, Linie>; // Key: LINIEN_ID
+type StopMap = Map<string, Haltestelle>; // Key: HALTESTELLEN_ID
 
 async function downloadCSV(url: string): Promise<string> {
-    const response = await fetch(url, {
-        cache: "no-store"
-    });
-
-    if (!response.ok) {
-        throw new Error(`Failed to download CSV: ${response.status} ${response.statusText}`);
-    }
-
+    const response = await fetch(url, { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status} for ${url}`);
     return response.text();
 }
 
-
-function csvToJson(csvText: string) {
-    const records = parse(csvText, {
+function parseCsv<T>(csvText: string): T[] {
+    return parse(csvText, {
         columns: true,
         skip_empty_lines: true,
         relax_column_count: true,
         relax_quotes: true,
         trim: true,
-        delimiter: ";"
+        delimiter: ";",
     });
-
-    return records;
 }
 
-function stops(dataStore: CsvDataMap) {
-    let stops = new Array<Stop>();
+/**
+ * PRE-PROCESSING: Create Lookup Maps to make the main logic O(1) instead of O(N^2)
+ */
+function indexData(
+    haltestellen: Haltestelle[],
+    linien: Linie[],
+    steige: Steige[]
+) {
+    const stopMap: StopMap = new Map();
+    haltestellen.forEach(h => stopMap.set(String(h.HALTESTELLEN_ID), h));
 
-    dataStore.haltestellen.forEach(haltestelle => {
-        let stop: Stop = {
-            diva: haltestelle.DIVA,
+    const lineMap: LinieMap = new Map();
+    linien.forEach(l => lineMap.set(String(l.LINIEN_ID), l));
+
+    const steigeByStop: SteigeGroupedByStop = new Map();
+    const steigeByLine: SteigeGroupedByLine = new Map();
+
+    steige.forEach(s => {
+        // Group by Stop ID
+        const stopKey = String(s.FK_HALTESTELLEN_ID);
+        if (!steigeByStop.has(stopKey)) steigeByStop.set(stopKey, []);
+        steigeByStop.get(stopKey)!.push(s);
+
+        // Group by Line ID
+        const lineKey = String(s.FK_LINIEN_ID);
+        if (!steigeByLine.has(lineKey)) steigeByLine.set(lineKey, []);
+        steigeByLine.get(lineKey)!.push(s);
+    });
+
+    return { stopMap, lineMap, steigeByStop, steigeByLine };
+}
+
+/**
+ * GENERATE STOPS.JSON
+ */
+function generateStops(
+    haltestellen: Haltestelle[],
+    steigeByStop: SteigeGroupedByStop,
+    lineMap: LinieMap
+) {
+    const result: Stop[] = [];
+
+    // Iterate every stop once
+    for (const h of haltestellen) {
+        const stopId = String(h.HALTESTELLEN_ID);
+
+        // 1. Basic Stop Info
+        const stop: Stop = {
+            diva: h.DIVA,
             stop: {
-                name: haltestelle.NAME,
+                name: h.NAME,
                 location: {
-                    lat: Number(haltestelle.WGS84_LAT),
-                    lon: Number(haltestelle.WGS84_LON)
+                    lat: Number(h.WGS84_LAT),
+                    lon: Number(h.WGS84_LON)
                 }
             },
             lines: []
-        }
-
-        const temp: temp[] = [];
-        dataStore.steige.forEach(steig => {
-            if (haltestelle.HALTESTELLEN_ID == steig.FK_HALTESTELLEN_ID) {
-                temp.push(
-                    {
-                        stopID: steig.STEIG_ID,
-                        linieID: steig.FK_LINIEN_ID,
-                        richtung: steig.RICHTUNG,
-                        location: {
-                            lat: Number(steig.STEIG_WGS84_LAT),
-                            lon: Number(steig.STEIG_WGS84_LON)
-                        }
-                    }
-                );
-            }
-        });
-
-        dataStore.linien.forEach(linie => {
-            const linieFromTemp = temp.find(item => item.linieID === linie.LINIEN_ID);
-            if (!linieFromTemp) return;
-
-            let lineTest = stop.lines.find(stop => stop.lineID === linie.LINIEN_ID);
-            let line: Line; 
-            if (!lineTest) {
-                let lineText = linie.BEZEICHNUNG
-
-
-
-                line = {
-                    lineID: linie.LINIEN_ID,
-                    lineText,
-                    directions: []
-                };
-
-                stop.lines.push(line);
-
-            } else{
-                line = lineTest;
-            }
-
-            let targetDir = linieFromTemp.richtung
-            const directionExists = line.directions.some(
-                direction => direction.dir === targetDir
-            );
-
-            if (!directionExists) {
-                line.directions.push({
-                    dir: targetDir,
-                    location: linieFromTemp.location
-                });
-            }
-        });
-
-
-
-        stops.push(stop);
-    });
-
-    fs.writeFileSync(
-        "./src/data/stops.json",
-        JSON.stringify(stops, null, 0),
-        "utf-8"
-    );
-}
-
-function lines(dataStore: CsvDataMap) {
-    let lines = new Array<LineEndstop>();
-
-    dataStore.steige.forEach(element => {
-        if (Number(element.REIHENFOLGE) === 1) {
-
-            let lineText: string | undefined;
-            let endstop: string | undefined;
-
-            for (const linie of dataStore.linien) {
-                if (linie.LINIEN_ID === element.FK_LINIEN_ID) {
-                    lineText = linie.BEZEICHNUNG;
-                    break;
-                }
-            }
-
-            const sameLine = dataStore.steige.filter(
-                s => s.FK_LINIEN_ID === element.FK_LINIEN_ID
-            )
-
-            if (sameLine.length === 0) return null
-
-            let minItem = sameLine.reduce((max, current) => {
-                return Number(current.REIHENFOLGE) < Number(max.REIHENFOLGE) && current.RICHTUNG === max.RICHTUNG
-                ? current
-                : max
-            })
-
-            let maxItem = sameLine.reduce((max, current) => {
-                return Number(current.REIHENFOLGE) > Number(max.REIHENFOLGE) && current.RICHTUNG === max.RICHTUNG
-                ? current
-                : max
-            })
-
-            if(element.RICHTUNG === "H"){
-                endstop = dataStore.haltestellen.find(line => line.HALTESTELLEN_ID === maxItem.FK_HALTESTELLEN_ID)?.NAME;
-
-            } else {
-                endstop = dataStore.haltestellen.find(line => line.HALTESTELLEN_ID === minItem.FK_HALTESTELLEN_ID)?.NAME;
-
-            }
-
-            if (lineText == undefined || endstop == undefined) {
-                return;
-            }
-
-            if (lines.some(line => line.lineID === element.FK_LINIEN_ID)) {
-                let line = lines.find(line => line.lineID === element.FK_LINIEN_ID);
-
-                if (line == undefined) {
-                    return;
-                }
-
-                line.directions.push({
-                    num: element.RICHTUNG,
-                    endstop
-                });
-            } else {
-                lines.push({
-                    lineID: element.FK_LINIEN_ID,
-                    lineText,
-                    directions: [
-                        {
-                            num: element.RICHTUNG,
-                            endstop
-                        }
-                    ]
-                })
-            }
-        }
-
-    });
-
-    fs.writeFileSync(
-        "./src/data/lines.json",
-        JSON.stringify(lines, null, 0),
-        "utf-8"
-    );
-}
-
-const MAX_RETRIES = 3
-const RETRY_DELAY_MS = 1000;
-let attempt = 0
-const delay = RETRY_DELAY_MS * attempt;
-
-while (attempt < MAX_RETRIES) {
-    try {
-        const csvBaseUrl = "https://data.wien.gv.at/csv/wienerlinien-ogd-";
-
-        const dataStore: CsvDataMap = {
-            haltestellen: [],
-            steige: [],
-            linien: [],
         };
 
-        const fileNamens = [
-            "haltestellen",
-            "linien",
-            "steige",
-        ];
+        // 2. Get all platforms (Steige) for this stop using the Lookup Map
+        const relevantSteige = steigeByStop.get(stopId);
 
-        for (const fileName of fileNamens) {
-            const csvUrl = csvBaseUrl + fileName + ".csv";
-            const csvText = await downloadCSV(csvUrl);
-            const jsonData = csvToJson(csvText);
+        if (relevantSteige) {
+            // We use a Map to ensure we only add each Line once per stop,
+            // but we can merge multiple directions into that single line entry.
+            const linesForThisStop = new Map<string, Line>();
 
-            if (fileName === "haltestellen") {
-                dataStore.haltestellen = jsonData as Haltestelle[];
-            } else if (fileName === "steige") {
-                dataStore.steige = jsonData as Steige[];
-            } else {
-                dataStore.linien = jsonData as Linie[];
+            for (const s of relevantSteige) {
+                const lineId = String(s.FK_LINIEN_ID);
+                const lineInfo = lineMap.get(lineId);
+
+                if (!lineInfo) continue;
+
+                // Create Line entry if not exists
+                if (!linesForThisStop.has(lineId)) {
+                    linesForThisStop.set(lineId, {
+                        lineID: lineInfo.LINIEN_ID,
+                        lineText: lineInfo.BEZEICHNUNG,
+                        directions: []
+                    });
+                }
+
+                const lineEntry = linesForThisStop.get(lineId)!;
+
+                // Check if direction exists
+                const dirExists = lineEntry.directions.some(d => d.dir === s.RICHTUNG);
+                if (!dirExists) {
+                    lineEntry.directions.push({
+                        dir: s.RICHTUNG,
+                        location: {
+                            lat: Number(s.STEIG_WGS84_LAT),
+                            lon: Number(s.STEIG_WGS84_LON)
+                        }
+                    });
+                }
+            }
+
+            stop.lines = Array.from(linesForThisStop.values());
+        }
+
+        result.push(stop);
+    }
+
+    fs.writeFileSync(`${OUTPUT_DIR}/stops.json`, JSON.stringify(result), "utf-8");
+    console.log(`   📝 Wrote ${result.length} stops to stops.json`);
+}
+
+/**
+ * GENERATE LINES.JSON
+ */
+function generateLines(
+    lineMap: LinieMap,
+    steigeByLine: SteigeGroupedByLine,
+    stopMap: StopMap
+) {
+    const result: LineEndstop[] = [];
+
+    // Iterate through every Line we know about
+    for (const [lineId, steigeList] of steigeByLine.entries()) {
+        const lineInfo = lineMap.get(lineId);
+        if (!lineInfo) continue;
+
+        // Group Steige by Direction (usually "H" and "R")
+        // Logic: For every direction, sort by REIHENFOLGE. Last item is the Destination.
+        const directions = new Map<string, Steige[]>();
+
+        steigeList.forEach(s => {
+            if (!directions.has(s.RICHTUNG)) directions.set(s.RICHTUNG, []);
+            directions.get(s.RICHTUNG)!.push(s);
+        });
+
+        const lineDirections: { num: string; endstop: string }[] = [];
+
+        for (const [dir, steigeInDir] of directions.entries()) {
+            if (steigeInDir.length === 0) continue;
+
+            // Sort by Order (1, 2, 3...)
+            steigeInDir.sort((a, b) => Number(a.REIHENFOLGE) - Number(b.REIHENFOLGE));
+
+            // The last stop in the sequence is typically the "Destination" (Endstop)
+            const lastSteig = steigeInDir[steigeInDir.length - 1];
+            const endStopName = stopMap.get(String(lastSteig.FK_HALTESTELLEN_ID))?.NAME;
+
+            if (endStopName) {
+                lineDirections.push({
+                    num: dir,
+                    endstop: endStopName
+                });
             }
         }
 
-        stops(dataStore);
-        lines(dataStore);
+        if (lineDirections.length > 0) {
+            result.push({
+                lineID: lineInfo.LINIEN_ID,
+                lineText: lineInfo.BEZEICHNUNG,
+                directions: lineDirections
+            });
+        }
+    }
 
-        console.log("✅ Successfully downloaded lines & stops from Wiener Linien");
-        process.exit(0);
-    } catch (err) {
-        if (attempt + 1 === MAX_RETRIES) {
-            process.exit(1);
-        } else {
-            console.error("❌ Could not download data from Wiener Linien - Retrying in " + delay, err);
-            attempt++
+    fs.writeFileSync(`${OUTPUT_DIR}/lines.json`, JSON.stringify(result), "utf-8");
+    console.log(`   📝 Wrote ${result.length} lines to lines.json`);
+}
+
+// --- MAIN EXECUTION ---
+async function main() {
+    const MAX_RETRIES = 3;
+    let attempt = 0;
+
+    while (attempt < MAX_RETRIES) {
+        try {
+            console.log(`🔄 Attempt ${attempt + 1}: Downloading CSVs...`);
+
+            // 1. Parallel Download
+            const promises = FILES.map(file => downloadCSV(`${URL_BASE}${file}.csv`));
+            const [rawHaltestellen, rawLinien, rawSteige] = await Promise.all(promises);
+
+            console.log("   ✅ Download complete. Parsing...");
+
+            // 2. Parse
+            const haltestellen = parseCsv<Haltestelle>(rawHaltestellen);
+            const linien = parseCsv<Linie>(rawLinien);
+            const steige = parseCsv<Steige>(rawSteige);
+
+            // 3. Indexing (The Optimization Magic)
+            console.log("   ⚡ Indexing data...");
+            const indexes = indexData(haltestellen, linien, steige);
+
+            // 4. Generate Files
+            generateStops(haltestellen, indexes.steigeByStop, indexes.lineMap);
+            generateLines(indexes.lineMap, indexes.steigeByLine, indexes.stopMap);
+
+            console.log("✅ Success! Exiting.");
+            process.exit(0);
+
+        } catch (err) {
+            attempt++;
+            console.error(`❌ Error (Attempt ${attempt}/${MAX_RETRIES}):`, err);
+
+            if (attempt >= MAX_RETRIES) {
+                console.error("❌ Max retries reached. Aborting.");
+                process.exit(1);
+            }
+
+            const delay = 1000 * attempt;
+            console.log(`   ⏳ Retrying in ${delay}ms...`);
             await sleep(delay);
         }
     }
 }
+
+await main();
