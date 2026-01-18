@@ -8,7 +8,7 @@ interface LocationState {
     update: () => void;
 }
 
-export const useLocationStore = create<LocationState>((set) => ({
+export const useUserLocationStore = create<LocationState>((set) => ({
     lat: null,
     lon: null,
     speed: 0,

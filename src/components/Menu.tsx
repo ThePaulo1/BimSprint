@@ -1,5 +1,4 @@
 import Settings from "./Settings";
-import StopPicker from "./StopPicker";
 import Link from "next/link";
 
 export default function Menu() {
