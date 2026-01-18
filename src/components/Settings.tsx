@@ -13,11 +13,6 @@ export default function Settings() {
     const [opened, setOpened] = useState(false);
     const {colors, setSignalColor} = useUserPreferencesStore()
 
-    const handleReload = () => {
-        setOpened(false);
-        window.location.reload();
-    };
-
     return (
         <Popover
             width="auto"
@@ -53,7 +48,7 @@ export default function Settings() {
                 </div>
                 <div className="flex gap-x-8 bg-black/40 p-4 rounded-b-2xl">
                     <ExportButton/>
-                    <ImportButton onImportSuccess={handleReload}/>
+                    <ImportButton/>
                 </div>
             </Popover.Dropdown>
         </Popover>

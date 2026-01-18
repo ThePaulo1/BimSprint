@@ -3,23 +3,19 @@
 import Link from "next/link";
 import {IconChevronRight, IconHeart, IconHeartFilled, IconMapPin} from "@tabler/icons-react";
 import {useUserLocationStore} from "@/store/userLocationStore";
-import {useEffect, useMemo, useState, MouseEvent} from "react";
-import {getFavorites, getNearestStops, toggleFavorite} from "@/app/lib/utils";
+import {MouseEvent, useMemo} from "react";
+import {getNearestStops} from "@/app/lib/utils";
 import {useShallow} from "zustand/react/shallow";
+import {useUserPreferencesStore} from "@/store/userPreferencesStore";
 
 export default function Stops() {
     const {lat, lon} = useUserLocationStore(useShallow((s) => ({lat: s.lat, lon: s.lon})));
-    const [favIds, setFavIds] = useState<string[]>([]);
-
-    useEffect(() => {
-        setFavIds(getFavorites());
-    }, []);
+    const {favourites, setFavourites} = useUserPreferencesStore()
 
     const handleToggleFav = (e: MouseEvent, diva: string) => {
         e.preventDefault(); // Verhindert Navigation zum Stop
         e.stopPropagation();
-        const updated = toggleFavorite(diva);
-        setFavIds(updated);
+        setFavourites(diva);
     };
 
     const stops = useMemo(() => {
@@ -27,8 +23,8 @@ export default function Stops() {
 
         return getNearestStops(lon, lat)
             .sort((a, b) =>
-                Number(favIds.includes(b.diva)) - Number(favIds.includes(a.diva)));
-    }, [lat, lon, favIds]);
+                Number(favourites.includes(b.diva)) - Number(favourites.includes(a.diva)));
+    }, [lat, lon, favourites]);
 
     if (!lat || !lon) {
         return (
@@ -47,7 +43,7 @@ export default function Stops() {
 
             <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
                 {stops.map((stop) => {
-                    const isFav = favIds.includes(stop.diva);
+                    const isFav = favourites.includes(stop.diva);
 
                     return (
                         <Link
