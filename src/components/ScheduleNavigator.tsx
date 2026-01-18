@@ -13,7 +13,7 @@ export default function ScheduleNavigator() {
     const router = useRouter();
     const pathname = usePathname();
     const schedules = useUserPreferencesStore((state) => state.schedules);
-
+    const {removeSchedule} = useUserPreferencesStore()
     useEffect(() => {
         if (pathname !== "/") return;
 
@@ -30,6 +30,8 @@ export default function ScheduleNavigator() {
             const targetUrl = `/monitor/${activeSchedule.diva}?line=${activeSchedule.line}&dir=${activeSchedule.dir}`;
             console.log("Auto-navigating to:", activeSchedule.line);
             router.replace(targetUrl);
+            
+            removeSchedule(activeSchedule.diva, activeSchedule.line, activeSchedule.dir)
         }
 
     }, [pathname, schedules, router]);
