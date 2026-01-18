@@ -1,8 +1,9 @@
 import Metrics from "../../../components/Metrics";
-import SafeTime from "../../../components/SafeScheduleLocation";
+import {getMonitorByDivaLineDirection, getStopLineByDivaLineDirection} from "@/app/lib/utils";
 
 interface MonitorProps {
     params: Promise<{ id: string; }>;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function Monitor({params, searchParams}: MonitorProps) {
@@ -17,7 +18,6 @@ export default async function Monitor({params, searchParams}: MonitorProps) {
 
     return (
         <>
-            <SafeTime diva={id}/>
             <Metrics
                 name={monitor?.locationStop.properties.title ?? "Haltestelle"}
                 lineText={monitor?.lines[0].name ?? "Linie"}

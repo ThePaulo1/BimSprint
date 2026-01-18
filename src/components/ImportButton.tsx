@@ -5,13 +5,28 @@ import {useUserPreferencesStore} from "@/store/userPreferencesStore";
 import {z} from "zod";
 import {useRouter} from "next/navigation";
 
+export const ScheduleSchema = z.object({
+    diva: z.string(),
+    line: z.string(),
+    dir: z.string(),
+    time: z.object({
+        start: z.string(),
+        end: z.string()
+    }).optional(),
+    location: z.object({
+        lat: z.number(),
+        lon: z.number()
+    }).optional(),
+});
+
 export const PreferenceSchema = z.object({
     favourites: z.array(z.string()),
     colors: z.object({
         red: z.string(),
         yellow: z.string(),
         green: z.string(),
-    })
+    }),
+    schedules: z.array(ScheduleSchema).optional()
 });
 
 export default function ImportButton() {
