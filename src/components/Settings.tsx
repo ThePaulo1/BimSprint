@@ -8,10 +8,16 @@ import {useState} from 'react';
 import {Popover} from '@mantine/core';
 import {IconSettings} from '@tabler/icons-react';
 import {useUserPreferencesStore} from "@/store/userPreferencesStore";
+import {usePathname, useSearchParams} from 'next/navigation'
+import SchedulePicker from "@/components/SchedulePicker";
 
 export default function Settings() {
     const [opened, setOpened] = useState(false);
     const {colors, setSignalColor} = useUserPreferencesStore()
+    const pathname = usePathname()
+    const isOnMonitorSite = pathname.startsWith('/monitor');
+    const diva = pathname.split('/').pop() ?? ""
+    const searchParams = useSearchParams()
 
     return (
         <Popover
@@ -45,6 +51,13 @@ export default function Settings() {
                             onChange={(color) => setSignalColor('red', color)}
                         />
                     </div>
+                    {isOnMonitorSite &&
+                        <SchedulePicker
+                            diva={diva}
+                            line={searchParams.get("line") ?? ""}
+                            dir={searchParams.get("dir") ?? ""}
+                        />
+                    }
                 </div>
                 <div className="flex gap-x-8 bg-black/40 p-4 rounded-b-2xl">
                     <ExportButton/>

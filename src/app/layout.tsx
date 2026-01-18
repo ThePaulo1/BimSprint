@@ -9,6 +9,7 @@ import Banner from "../components/Banner";
 import {getBannerOpen, getTheme} from "./lib/cookies";
 import OfflineHint from "../components/OfflineHint";
 import {UserLocationStoreProvider} from "@/components/UserLocationStoreProvider";
+import ScheduleNavigator from "@/components/ScheduleNavigator";
 
 export const metadata: Metadata = {
     applicationName: constants.name,
@@ -52,7 +53,8 @@ export default async function RootLayout({children}: { children: ReactNode }) {
             <ColorSchemeScript/>
         </head>
         <body className="w-screen max-w-screen dark:bg-darkmode-gray h-dvh max-h-dvh">
-        <UserLocationStoreProvider />
+        <UserLocationStoreProvider/>
+        <ScheduleNavigator/>
         <MantineProvider defaultColorScheme="auto">
             <div className="flex flex-col gap-y-3 max-h-full h-dvh">
                 <Banner isBannerOpenInit={isBannerOpen}/>

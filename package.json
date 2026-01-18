@@ -16,6 +16,7 @@
   "packageManager": "pnpm@10.12.4",
   "dependencies": {
     "@mantine/core": "^8.3.10",
+    "@mantine/dates": "^8.3.12",
     "@mantine/hooks": "^8.3.10",
     "@serwist/next": "^9.4.2",
     "@tabler/icons-react": "^3.35.0",

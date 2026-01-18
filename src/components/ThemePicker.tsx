@@ -37,7 +37,7 @@ export default function ThemePicker() {
     }
 
     return (
-        <button onClick={toggleTheme} className="flex gap-x-3">
+        <button onClick={toggleTheme} className="flex gap-x-3 hover:text-yellow-400">
             {getIcon()}
             <div>{colorScheme}</div>
         </button>
