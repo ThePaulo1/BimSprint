@@ -55,6 +55,7 @@ export default function Settings() {
                         <SchedulePicker
                             diva={diva}
                             line={searchParams.get("line") ?? ""}
+                            lineId={searchParams.get("lineId") ?? ""}
                             dir={searchParams.get("dir") ?? ""}
                         />
                     }
