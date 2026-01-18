@@ -64,7 +64,7 @@ export default function SchedulePicker({diva, line, dir}: SchedulePickerProps) {
                 label="End time"
                 value={endTime}
                 leftSection={<IconClock size={16}/>}
-                onChange={(time) => handleTimeChange('start', time)}
+                onChange={(time) => handleTimeChange('end', time)}
                 className="max-w-fit"
                 classNames={{field: "text-center!"}}
                 clearable

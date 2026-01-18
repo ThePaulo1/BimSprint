@@ -22,7 +22,7 @@ export default async function Monitor({params, searchParams}: MonitorProps) {
                 name={monitor?.locationStop.properties.title ?? "Haltestelle"}
                 lineText={monitor?.lines[0].name ?? "Linie"}
                 direction={monitor?.lines[0].towards ?? "Endstation"}
-                location={stopLine.location}
+                location={stopLine?.location}
                 monitors={monitors}
             />
         </>

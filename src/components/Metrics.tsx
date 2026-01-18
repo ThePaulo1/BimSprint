@@ -6,7 +6,8 @@ import {useUserLocationStore} from "@/store/userLocationStore";
 import {useShallow} from "zustand/react/shallow";
 import {Location} from "@/types/Direction";
 import {useUserPreferencesStore} from "@/store/userPreferencesStore";
-import {IconWalk} from "@tabler/icons-react";
+import {IconDeviceSpeaker, IconDeviceSpeakerOff, IconWalk} from "@tabler/icons-react";
+import useSound from 'use-sound';
 
 interface MetricsProps {
     name: string;
@@ -22,15 +23,17 @@ export default function Metrics({name, location, lineText, direction, monitors}:
     const [nextDeparture, setNextDeparture] = useState(0);
     const [statusText, setStatusText] = useState("");
     const [statusTextNext, setStatusTextNext] = useState("");
+    const [audioOff, setAudioOff] = useState(true);
     const {lat, lon, speed} = useUserLocationStore(useShallow((s) => ({lat: s.lat, lon: s.lon, speed: s.speed})));
     const speeds = [1.4] // init with average adult walking speed in m/s
     const {colors} = useUserPreferencesStore()
     const [colorNext, setColorNext] = useState(colors.red);
+    const [play, {stop}] = useSound("/miss.wav");
 
     const distanceToStop = useMemo(() => {
         if (!lat || !lon) return 0;
 
-        return distance([lat, lon], [location.lat, location.lon], {units: "meters"})
+        return distance([lat, lon], [location?.lat, location?.lon], {units: "meters"})
     }, [lat, lon, lineText, direction]);
 
     const timeUntilDeparture = () => {
@@ -62,7 +65,7 @@ export default function Metrics({name, location, lineText, direction, monitors}:
 
         const ratio = calculateReachabilityRation(timeUntilDeparture())
         const nextRatio = calculateReachabilityRation(nextDeparture)
-
+        console.log("nextRatio", ratio)
         if (nextRatio >= 1.1) {
             setStatusTextNext("No stress")
             setColorNext(colors.green)
@@ -94,6 +97,16 @@ export default function Metrics({name, location, lineText, direction, monitors}:
 
         return () => clearInterval(interval);
     }, [timeUntilDeparture]);
+
+    const handleAudio = () => {
+        if(audioOff) {
+            setAudioOff(false);
+            play()
+        } else {
+            setAudioOff(true);
+            stop()
+        }
+    }
 
     return (
         <div className="flex flex-col items-center justify-center h-full overflow-hidden">
@@ -141,7 +154,7 @@ export default function Metrics({name, location, lineText, direction, monitors}:
 
             {reachabilityStatus === colors.red && (
                 <div
-                    className="absolute bottom-6 mx-6 max-w-sm w-[90%] backdrop-blur-md bg-white/80 dark:bg-neutral-900/80 rounded-2xl flex items-start gap-4 shadow-xl border border-white/20 dark:border-white/10 animate-in slide-in-from-bottom-6 fade-in duration-500 z-30"
+                    className="absolute justify-around bottom-6 mx-6 max-w-sm w-[90%] backdrop-blur-md bg-white/80 dark:bg-neutral-900/80 rounded-2xl flex items-start gap-4 shadow-xl border border-white/20 dark:border-white/10 animate-in slide-in-from-bottom-6 fade-in duration-500 z-30"
                 >
                     <div
                         className="p-2 rounded-full mt-0.5"
@@ -161,6 +174,12 @@ export default function Metrics({name, location, lineText, direction, monitors}:
                             }
                         </p>
                     </div>
+                    <button
+                        className="p-2 rounded-full mt-0.5"
+                        onClick={() => handleAudio()}
+                    >
+                        {audioOff ? <IconDeviceSpeakerOff/> : <IconDeviceSpeaker/>}
+                    </button>
                 </div>
             )}
         </div>
