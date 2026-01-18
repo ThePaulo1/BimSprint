@@ -4,7 +4,7 @@ export type Location = {
 }
 
 export type Direction = {
-    num: string;
+    dir: string;
     location: Location;
 }
 

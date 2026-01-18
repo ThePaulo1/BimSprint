@@ -8,6 +8,7 @@ export type Monitor = {
     locationStop: {
         properties: {
             title: string;
+            name: string;
         }
     }
     lines: Line[];
@@ -17,7 +18,7 @@ type Line = {
     name: string;
     towards: string;
     lineId: number;
-    richtungsId: string;
+    direction: string;
     departures: Departures;
 }
 

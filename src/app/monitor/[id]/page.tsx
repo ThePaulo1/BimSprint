@@ -7,10 +7,10 @@ interface MonitorProps {
 }
 
 export default async function Monitor({params, searchParams}: MonitorProps) {
-    const {line, dir} = await searchParams
+    const {line, lineId, dir} = await searchParams
     const {id} = await params
     const monitor = await getMonitorByDivaLineDirection(id, String(line), String(dir))
-    const stopLine = getStopLineByDivaLineDirection(id, String(line), String(dir))
+    const stopLine = getStopLineByDivaLineDirection(id, String(lineId), String(dir))
     const monitors = monitor?.lines[0]
         .departures
         .departure
