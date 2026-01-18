@@ -1,18 +1,18 @@
 import Link from "next/link";
 import {IconArrowRight, IconTrain} from "@tabler/icons-react";
-import {getStopByDiva} from "@/app/lib/utils";
+import {getMonitorsForStop, getStopByDiva} from "@/app/lib/utils";
 import linesData from "@/data/lines.json";
 
 interface StopProps {
     params: Promise<{ id: string }>;
 }
 
-export default async function StopDetail({ params }: StopProps) {
-    const { id } = await params;
-    const divaId = decodeURIComponent(id);
-
-    const stop = getStopByDiva(divaId);
+export default async function StopDetail({params}: StopProps) {
+    const {id} = await params;
+    const diva = decodeURIComponent(id);
+    const stop = getStopByDiva(diva);
     const stopName = stop.stop.name;
+    const monitors = await getMonitorsForStop(diva) // prefetch for monitor site
 
     if (!stop || !stopName) {
         return (
@@ -20,7 +20,7 @@ export default async function StopDetail({ params }: StopProps) {
                 <h1 className="text-xl font-bold text-white">
                     Haltestelle nicht gefunden
                 </h1>
-                <p className="text-slate-500">ID: {divaId}</p>
+                <p className="text-slate-500">ID: {diva}</p>
             </div>
         );
     }
@@ -44,7 +44,7 @@ export default async function StopDetail({ params }: StopProps) {
 
                     const validDirections = line.directions.filter((dir) => {
                         const details = lineInfo?.directions?.find(
-                            (d: any) => String(d.num) === String(dir.num)
+                            (d: any) => String(d.num) === String(dir.dir)
                         );
                         return details && details.endstop;
                     });
@@ -67,13 +67,13 @@ export default async function StopDetail({ params }: StopProps) {
                                 {validDirections.map((dir) => {
                                     const details = lineInfo!.directions.find(
                                         (d: any) =>
-                                            String(d.num) === String(dir.num)
+                                            String(d.num) === String(dir.dir)
                                     );
 
                                     return (
                                         <Link
-                                            key={`${line.lineID}-${dir.num}`}
-                                            href={`/monitor/${stop.diva}?line=${line.lineID}&dir=${dir.num}`}
+                                            key={`${line.lineID}-${dir.dir}`}
+                                            href={`/monitor/${stop.diva}?line=${line.lineText}&lineId=${line.lineID}&dir=${dir.dir}`}
                                             className="min-w-[150px] flex-1 sm:flex-none flex flex-col p-5 bg-slate-50 dark:bg-[#1e1e1e] rounded-2xl hover:bg-slate-100 dark:hover:bg-[#252525] transition-all duration-200 active:scale-[0.96] group">
                                             <span
                                                 className="text-[10px] text-yellow-400 dark:text-yellow-300 font-black uppercase tracking-widest mb-2 group-hover:text-yellow-300 dark:group-hover:text-yellow-200">

@@ -27,8 +27,12 @@ export default function ScheduleNavigator() {
         });
 
         if (activeSchedule) {
+<<<<<<< HEAD
 
             const targetUrl = `/monitor/${activeSchedule.diva}?line=${activeSchedule.line}&lineId&${activeSchedule.lineId}dir=${activeSchedule.dir}`;
+=======
+            const targetUrl = `/monitor/${activeSchedule.diva}?line=${activeSchedule.line}&dir=${activeSchedule.dir}`;
+>>>>>>> main
             console.log("Auto-navigating to:", activeSchedule.line);
             router.replace(targetUrl);
             

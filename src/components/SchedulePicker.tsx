@@ -7,11 +7,18 @@ import {useUserLocationStore} from "@/store/userLocationStore";
 
 type SchedulePickerProps = {
     diva: string;
+<<<<<<< HEAD
     lineId: string;
     line: string;
     dir: string;
 }
 export default function SchedulePicker({diva, line, lineId, dir}: SchedulePickerProps) {
+=======
+    line: string;
+    dir: string;
+}
+export default function SchedulePicker({diva, line, dir}: SchedulePickerProps) {
+>>>>>>> main
     const {schedules, setSchedule} = useUserPreferencesStore()
     const {lat, lon} = useUserLocationStore()
     const schedule = schedules?.find(s =>
@@ -26,7 +33,10 @@ export default function SchedulePicker({diva, line, lineId, dir}: SchedulePicker
         setSchedule({
             diva,
             line,
+<<<<<<< HEAD
             lineId,
+=======
+>>>>>>> main
             dir,
             location: schedule?.location,
             time: {
@@ -44,7 +54,10 @@ export default function SchedulePicker({diva, line, lineId, dir}: SchedulePicker
         setSchedule({
             diva,
             line,
+<<<<<<< HEAD
             lineId,
+=======
+>>>>>>> main
             dir,
             location: location,
             time: schedule?.time

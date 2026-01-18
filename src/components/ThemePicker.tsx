@@ -2,7 +2,7 @@
 
 import {useMantineColorScheme} from '@mantine/core';
 import {IconBrightnessFilled, IconMoonFilled, IconSunLowFilled} from '@tabler/icons-react';
-import {setTheme} from "../app/lib/cookies";
+import {setTheme} from "@/app/lib/cookies";
 
 export default function ThemePicker() {
     const {colorScheme, setColorScheme} = useMantineColorScheme();
@@ -37,7 +37,7 @@ export default function ThemePicker() {
     }
 
     return (
-        <button onClick={toggleTheme} className="flex gap-x-3">
+        <button onClick={toggleTheme} className="flex gap-x-3 hover:text-yellow-400">
             {getIcon()}
             <div>{colorScheme}</div>
         </button>

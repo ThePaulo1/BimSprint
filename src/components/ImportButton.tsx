@@ -8,7 +8,10 @@ import {useRouter} from "next/navigation";
 export const ScheduleSchema = z.object({
     diva: z.string(),
     line: z.string(),
+<<<<<<< HEAD
     lineId: z.string(),
+=======
+>>>>>>> main
     dir: z.string(),
     time: z.object({
         start: z.string(),
