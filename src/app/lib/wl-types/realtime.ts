@@ -4,11 +4,18 @@ export interface ApiResponse {
     };
 }
 
-type Monitor = {
+export type Monitor = {
+    locationStop: {
+        properties: {
+            title: string;
+        }
+    }
     lines: Line[];
 }
 
 type Line = {
+    name: string;
+    towards: string;
     lineId: number;
     direction: string;
     departures: Departures;
