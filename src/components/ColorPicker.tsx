@@ -1,4 +1,3 @@
-// Components/ColorPickerItem.tsx
 import { ColorInput } from '@mantine/core';
 
 interface ColorPickerProps {
@@ -13,6 +12,7 @@ export default function ColorPickerItem({color, onChange }: ColorPickerProps) {
             value={color}
             onChange={onChange}
             size="xs"
+            disallowInput
         />
     );
 }

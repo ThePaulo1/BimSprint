@@ -5,7 +5,6 @@ import distance from "@turf/distance";
 import {useUserLocationStore} from "@/store/userLocationStore";
 import {useShallow} from "zustand/react/shallow";
 import {Location} from "@/types/Direction";
-import {getPreferences} from "@/app/lib/utils";
 import {useUserPreferencesStore} from "@/store/userPreferencesStore";
 
 interface MetricsProps {

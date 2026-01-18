@@ -1,11 +1,14 @@
 import {create} from 'zustand';
-import {Preference, PreferenceSchema} from "@/app/lib/utils";
 import {persist} from "zustand/middleware";
+import {z} from "zod";
+import {PreferenceSchema} from "@/components/ImportButton";
+
+type Preference = z.infer<typeof PreferenceSchema>;
 
 type UserPreferencesStore = Preference & {
     setSignalColor: (key: "red" | "yellow" | "green", color: string) => void;
-    getPreferences: () => Preference | undefined;
-    setPreferences: (preferences: Preference) => void;
+    setFavourites: (diva: string) => void;
+    importPreferences: (preferences: Preference) => void;
 }
 
 const DEFAULT_COLORS = {
@@ -19,30 +22,21 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
         (set, get) => ({
             favourites: [],
             colors: DEFAULT_COLORS,
-            setSignalColor: (key: 'red' | 'yellow' | 'green', color: string) => {
-                if (typeof window === 'undefined') return;
-
-                const preferences = get().getPreferences();
-                if (!preferences) return;
-
-                preferences.colors[key] = color;
-                set({colors: preferences.colors});
-                get().setPreferences(preferences);
-            },
-            getPreferences: () => {
-                if (typeof window === 'undefined') return;
-
-                const raw = localStorage.getItem('bimsprint_preferences')
-                if (!raw) return;
-
-                const json = JSON.parse(raw);
-                return PreferenceSchema.parse(json);
-            },
-            setPreferences: (preferences: Preference) => {
-                if (typeof window === 'undefined') return;
-
-                localStorage.setItem('bimsprint_preferences', JSON.stringify(preferences))
-            },
+            setSignalColor: (key, color) => set((state) => ({
+                colors: {
+                    ...state.colors,
+                    [key]: color
+                }
+            })),
+            setFavourites: (diva) => set((state) => ({
+                favourites: state.favourites.includes(diva)
+                    ? state.favourites.filter((id) => id !== diva)
+                    : [...state.favourites, diva]
+            })),
+            importPreferences: (preferences) => set(() => ({
+                colors: preferences.colors,
+                favourites: preferences.favourites
+            })),
         }),
         {
             name: 'preferences',
