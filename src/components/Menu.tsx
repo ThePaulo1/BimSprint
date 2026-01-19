@@ -1,4 +1,4 @@
-import Settings from "./Settings";
+import Settings from "./Settings/Settings";
 import Link from "next/link";
 
 export default function Menu() {

@@ -37,7 +37,12 @@ export default function ThemePicker() {
     }
 
     return (
-        <button onClick={toggleTheme} className="flex gap-x-3 hover:text-yellow-400">
+        <button
+            onClick={toggleTheme}
+            className="flex gap-x-3 hover:text-yellow-400"
+            data-umami-event="Theme toggle"
+            data-umami-event-theme={colorScheme}
+        >
             {getIcon()}
             <div>{colorScheme}</div>
         </button>

@@ -1,7 +1,7 @@
 import {create} from 'zustand';
 import {persist} from "zustand/middleware";
 import {z} from "zod";
-import {PreferenceSchema, ScheduleSchema} from "@/components/ImportButton";
+import {PreferenceSchema, ScheduleSchema} from "@/components/Settings/ImportButton";
 
 type Preference = z.infer<typeof PreferenceSchema>;
 type Schedule = z.infer<typeof ScheduleSchema>;

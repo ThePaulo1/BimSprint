@@ -9,7 +9,7 @@ import {Popover} from '@mantine/core';
 import {IconSettings} from '@tabler/icons-react';
 import {useUserPreferencesStore} from "@/store/userPreferencesStore";
 import {usePathname, useSearchParams} from 'next/navigation'
-import SchedulePicker from "@/components/SchedulePicker";
+import SchedulePicker from "@/components/Settings/SchedulePicker";
 
 export default function Settings() {
     const [opened, setOpened] = useState(false);
