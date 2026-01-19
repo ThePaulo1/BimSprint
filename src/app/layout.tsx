@@ -10,6 +10,7 @@ import {getBannerOpen, getTheme} from "./lib/cookies";
 import OfflineHint from "../components/OfflineHint";
 import {UserLocationStoreProvider} from "@/components/UserLocationStoreProvider";
 import ScheduleNavigator from "@/components/ScheduleNavigator";
+import Script from "next/script";
 
 export const metadata: Metadata = {
     applicationName: constants.name,
@@ -67,6 +68,12 @@ export default async function RootLayout({children}: { children: ReactNode }) {
                 </div>
             </div>
         </MantineProvider>
+        {process.env.NEXT_PUBLIC_ANALYTICS_URL &&
+            <Script
+                src={process.env.NEXT_PUBLIC_ANALYTICS_URL}
+                data-website-id={process.env.NEXT_PUBLIC_ANALYTICS_ID}
+            />
+        }
         </body>
         </html>
     );

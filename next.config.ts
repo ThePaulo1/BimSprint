@@ -7,6 +7,18 @@ const nextConfig: NextConfig = {
     experimental: {
         viewTransition: true,
     },
+    rewrites: () =>
+        process.env.NEXT_PUBLIC_ANALYTICS_URL ?
+            [
+                {
+                    source: '/m.js',
+                    destination: process.env.NEXT_PUBLIC_ANALYTICS_URL,
+                },
+                {
+                    source: '/api/m',
+                    destination: `${process.env.NEXT_PUBLIC_ANALYTICS_URL}/api/m`,
+                },
+            ] : []
 };
 
 const withSerwist = withSerwistInit({
@@ -14,7 +26,7 @@ const withSerwist = withSerwistInit({
     swDest: "public/sw.js",
     reloadOnOnline: false,
     disable: process.env.NODE_ENV === "development",
-    additionalPrecacheEntries: [{ url: "/offline", revision: crypto.randomUUID() }],
+    additionalPrecacheEntries: [{url: "/offline", revision: crypto.randomUUID()}],
 });
 
 
