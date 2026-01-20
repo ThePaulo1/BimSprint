@@ -30,7 +30,10 @@ export default function Settings() {
             classNames={{dropdown: "p-0!"}}
         >
             <Popover.Target>
-                <button onClick={() => setOpened(!opened)}>
+                <button
+                    onClick={() => setOpened(!opened)}
+                    data-umami-event="Settings toggle"
+                >
                     <IconSettings/>
                 </button>
             </Popover.Target>
@@ -41,14 +44,17 @@ export default function Settings() {
                         <ColorPicker
                             color={colors.green}
                             onChange={(color) => setSignalColor('green', color)}
+                            data-umami-event="Color picker (green)"
                         />
                         <ColorPicker
                             color={colors.yellow}
                             onChange={(color) => setSignalColor('yellow', color)}
+                            data-umami-event="Color picker (yellow)"
                         />
                         <ColorPicker
                             color={colors.red}
                             onChange={(color) => setSignalColor('red', color)}
+                            data-umami-event="Color picker (red)"
                         />
                     </div>
                     {isOnMonitorSite &&

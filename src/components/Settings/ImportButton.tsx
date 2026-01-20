@@ -67,7 +67,13 @@ export default function ImportButton() {
                 <IconUpload size={20}/>
             </div>
             <div className="text-sm font-medium">import</div>
-            <input type="file" accept=".json" onChange={handleFileChange} className="hidden"/>
+            <input
+                type="file"
+                accept=".json"
+                onChange={handleFileChange}
+                className="hidden"
+                data-umami-event="Import button"
+            />
         </label>
     );
 }

@@ -19,6 +19,7 @@ export default function ExportButton() {
     return (
         <button
             onClick={exportPreferences}
+            data-umami-event="Export button"
             className="flex gap-x-1 w-full hover:text-yellow-400 items-center justify-center"
         >
             <div className="w-6 flex justify-center flex-shrink-0">

@@ -5,13 +5,14 @@ interface ColorPickerProps {
     onChange: (value: string) => void;
 }
 
-export default function ColorPickerItem({color, onChange}: ColorPickerProps) {
+export default function ColorPickerItem({color, onChange, ...others}: ColorPickerProps) {
     return (
         <ColorInput
             format="hex"
             value={color}
             onChange={onChange}
             disallowInput
+            {...others}
         />
     );
 }

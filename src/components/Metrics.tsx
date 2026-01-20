@@ -177,6 +177,7 @@ export default function Metrics({name, location, lineText, direction, monitors}:
                     <button
                         className="p-2 rounded-full mt-0.5"
                         onClick={() => handleAudio()}
+                        data-umami-event="Audio button"
                     >
                         {audioOff ? <IconDeviceSpeakerOff/> : <IconDeviceSpeaker/>}
                     </button>

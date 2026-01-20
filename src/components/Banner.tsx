@@ -76,7 +76,11 @@ export default function Banner({isBannerOpenInit}: BannerProps) {
             {isBannerOpen &&
                 <aside
                     className="flex w-full h-20 gap-x-2 items-center justify-between px-3 transition-all dark:bg-darkmode-gray">
-                    <CloseButton className="w-1/3" variant="transparent" onClick={handleBannerClose}/>
+                    <CloseButton
+                        className="w-1/3" variant="transparent"
+                        onClick={handleBannerClose}
+                        data-umami-event="Dismissed install app banner"
+                    />
 
                     <div className="flex flex-1 items-center" onClick={handleBannerClick}>
                         <img
@@ -99,6 +103,7 @@ export default function Banner({isBannerOpenInit}: BannerProps) {
                         radius="xl"
                         onClick={handleBannerClick}
                         gradient={{from: "#4b6cb7 10%", to: "#253b67 90%", deg: 45}}
+                        data-umami-event="Install app instructions button"
                     >
                         GET
                     </Button>
