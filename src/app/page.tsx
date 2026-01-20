@@ -50,13 +50,15 @@ export default function Stops() {
                             key={stop.diva}
                             href={`/stop/${encodeURIComponent(stop.diva)}`}
                             className="flex group items-center justify-between p-4 bg-slate-50 dark:bg-[#1e1e1e] rounded-2xl hover:bg-slate-100 dark:hover:bg-[#252525] transition-all"
-                            data-umami-event={`Stop ${stop.stop.name}`}
+                            data-umami-event={"Select stop"}
+                            data-umami-event-stop={stop.stop.name}
                         >
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={(e) => handleToggleFav(e, stop.diva)}
                                     className="focus:outline-none transition-transform active:scale-125"
-                                    data-umami-event={`Toggle favourites for ${stop.stop.name}`}
+                                    data-umami-event={"Toggle favourites"}
+                                    data-umami-event-stop={stop.stop.name}
                                 >
                                     {isFav ? (
                                         <IconHeartFilled size={20} className="text-red-500"/>

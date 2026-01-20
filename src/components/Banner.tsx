@@ -104,6 +104,7 @@ export default function Banner({isBannerOpenInit}: BannerProps) {
                         onClick={handleBannerClick}
                         gradient={{from: "#4b6cb7 10%", to: "#253b67 90%", deg: 45}}
                         data-umami-event="Install app instructions button"
+                        data-umami-event-os={isIOS() ? "iOS" : "Android"}
                     >
                         GET
                     </Button>

@@ -23,7 +23,7 @@ export default function Metrics({name, location, lineText, direction, monitors}:
     const [nextDeparture, setNextDeparture] = useState(0);
     const [statusText, setStatusText] = useState("");
     const [statusTextNext, setStatusTextNext] = useState("");
-    const [audioOff, setAudioOff] = useState(true);
+    const [isAudioOff, setIsAudioOff] = useState(true);
     const {lat, lon, speed} = useUserLocationStore(useShallow((s) => ({lat: s.lat, lon: s.lon, speed: s.speed})));
     const speeds = [1.4] // init with average adult walking speed in m/s
     const {colors} = useUserPreferencesStore()
@@ -99,11 +99,11 @@ export default function Metrics({name, location, lineText, direction, monitors}:
     }, [timeUntilDeparture]);
 
     const handleAudio = () => {
-        if(audioOff) {
-            setAudioOff(false);
+        if (isAudioOff) {
+            setIsAudioOff(false);
             play()
         } else {
-            setAudioOff(true);
+            setIsAudioOff(true);
             stop()
         }
     }
@@ -178,8 +178,9 @@ export default function Metrics({name, location, lineText, direction, monitors}:
                         className="p-2 rounded-full mt-0.5"
                         onClick={() => handleAudio()}
                         data-umami-event="Audio button"
+                        data-umami-event-enabled={!isAudioOff ? "enabled" : "disabled"}
                     >
-                        {audioOff ? <IconDeviceSpeakerOff/> : <IconDeviceSpeaker/>}
+                        {isAudioOff ? <IconDeviceSpeakerOff/> : <IconDeviceSpeaker/>}
                     </button>
                 </div>
             )}

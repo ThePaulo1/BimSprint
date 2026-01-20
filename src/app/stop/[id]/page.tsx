@@ -75,8 +75,8 @@ export default async function StopDetail({params}: StopProps) {
                                             key={`${line.lineID}-${dir.dir}`}
                                             href={`/monitor/${stop.diva}?line=${line.lineText}&lineId=${line.lineID}&dir=${dir.dir}`}
                                             className="min-w-[150px] flex-1 sm:flex-none flex flex-col p-5 bg-slate-50 dark:bg-[#1e1e1e] rounded-2xl hover:bg-slate-100 dark:hover:bg-[#252525] transition-all duration-200 active:scale-[0.96] group"
-                                            data-umami-event={`Monitor ${stopName}/${line.lineText}/${details.endstop}`}
-                                        >
+                                            data-umami-event={"Monitor stop"}
+                                            data-umami-event-stop={`${stopName}/${line.lineText}/${details.endstop}`}>
                                             <span
                                                 className="text-[10px] text-yellow-400 dark:text-yellow-300 font-black uppercase tracking-widest mb-2 group-hover:text-yellow-300 dark:group-hover:text-yellow-200">
                                                 Richtung

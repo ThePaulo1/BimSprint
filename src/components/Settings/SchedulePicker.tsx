@@ -62,7 +62,8 @@ export default function SchedulePicker({diva, line, lineId, dir}: SchedulePicker
                 classNames={{field: "text-center!"}}
                 clearable
                 radius={"md"}
-                data-umami-event="Start time schedule picker"
+                data-umami-event="Time schedule picker"
+                data-umami-event-start={startTime}
             />
             <TimePicker
                 label="End time"
@@ -73,7 +74,8 @@ export default function SchedulePicker({diva, line, lineId, dir}: SchedulePicker
                 classNames={{field: "text-center!"}}
                 clearable
                 radius={"md"}
-                data-umami-event="End time schedule picker"
+                data-umami-event="Time schedule picker"
+                data-umami-event-end={endTime}
             />
             <button
                 className="rounded-lg bg-black/20 hover:text-yellow-400 p-2 flex gap-x-2 h-fit"

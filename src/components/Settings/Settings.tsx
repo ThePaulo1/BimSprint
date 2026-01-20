@@ -44,17 +44,20 @@ export default function Settings() {
                         <ColorPicker
                             color={colors.green}
                             onChange={(color) => setSignalColor('green', color)}
-                            data-umami-event="Color picker (green)"
+                            data-umami-event="Choose custom signal color"
+                            data-umami-event-green={colors.green}
                         />
                         <ColorPicker
                             color={colors.yellow}
                             onChange={(color) => setSignalColor('yellow', color)}
-                            data-umami-event="Color picker (yellow)"
+                            data-umami-event="Choose custom signal color"
+                            data-umami-event-yellow={colors.yellow}
                         />
                         <ColorPicker
                             color={colors.red}
                             onChange={(color) => setSignalColor('red', color)}
-                            data-umami-event="Color picker (red)"
+                            data-umami-event="Choose custom signal color"
+                            data-umami-event-red={colors.red}
                         />
                     </div>
                     {isOnMonitorSite &&
