@@ -32,7 +32,7 @@ export default async function StopDetail({params}: StopProps) {
                     {stopName}
                 </h1>
                 <p className="text-slate-500 dark:text-slate-400">
-                    Wähle eine Linie & Richtung
+                    Choose a line & direction
                 </p>
             </header>
 

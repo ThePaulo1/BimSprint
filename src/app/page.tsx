@@ -29,7 +29,7 @@ export default function Stops() {
     if (!lat || !lon) {
         return (
             <div className="flex flex-col h-full items-center justify-center">
-                <p className="text-slate-400 animate-pulse">Suche Standort...</p>
+                <p className="text-slate-400 animate-pulse">Getting location...</p>
             </div>
         );
     }
@@ -37,8 +37,8 @@ export default function Stops() {
     return (
         <div className="flex flex-col h-full">
             <header className="p-6 pb-4 flex-none border-b border-slate-100 dark:border-[#2e2e2e]">
-                <h1 className="text-3xl font-extrabold tracking-tight">Stationen</h1>
-                <p className="text-slate-500 dark:text-slate-400">Wähle eine Haltestelle</p>
+                <h1 className="text-3xl font-extrabold tracking-tight">Stations</h1>
+                <p className="text-slate-500 dark:text-slate-400">Select a nearby station</p>
             </header>
 
             <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
