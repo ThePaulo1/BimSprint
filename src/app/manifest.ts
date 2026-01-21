@@ -34,18 +34,18 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
         launch_handler: {
             client_mode: "navigate-existing"
         },
-        // screenshots: [
-        //     {
-        //         src: "screenshot1.webp",
-        //         sizes: "1280x720",
-        //         type: "image/webp"
-        //     },
-        //     {
-        //         src: "screenshot2.webp",
-        //         sizes: "1280x720",
-        //         type: "image/webp"
-        //     }
-        // ],
+        screenshots: [
+            {
+                src: "/icons/1.png",
+                sizes: "2688x1242",
+                type: "image/png"
+            },
+            {
+                src: "/icons/2.png",
+                sizes: "2688x1242",
+                type: "image/png"
+            }
+        ],
         // shortcuts: [
         //     {
         //         "name": "Today's agenda",
