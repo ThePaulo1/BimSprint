@@ -4,7 +4,7 @@ import {z} from "zod";
 import {PreferenceSchema, ScheduleSchema} from "@/components/Settings/ImportButton";
 
 type Preference = z.infer<typeof PreferenceSchema>;
-type Schedule = z.infer<typeof ScheduleSchema>;
+export type Schedule = z.infer<typeof ScheduleSchema>;
 
 type UserPreferencesStore = Preference & {
     setSignalColor: (key: "red" | "yellow" | "green", color: string) => void;
