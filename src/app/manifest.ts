@@ -1,4 +1,4 @@
-import type { MetadataRoute } from "next";
+import type {MetadataRoute} from "next";
 import {constants} from "../constants";
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
@@ -34,6 +34,18 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
         launch_handler: {
             client_mode: "navigate-existing"
         },
+        // screenshots: [
+        //     {
+        //         src: "screenshot1.webp",
+        //         sizes: "1280x720",
+        //         type: "image/webp"
+        //     },
+        //     {
+        //         src: "screenshot2.webp",
+        //         sizes: "1280x720",
+        //         type: "image/webp"
+        //     }
+        // ],
         // shortcuts: [
         //     {
         //         "name": "Today's agenda",

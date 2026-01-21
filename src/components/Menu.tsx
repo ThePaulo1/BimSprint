@@ -15,7 +15,7 @@ export default function Menu() {
                 data-umami-event="Logo button"
                 data-umami-event-from={pathname}
             >
-                {">Bim>>Sprint"}</Link>
+                {"🔮 BimSprint"}</Link>
             <div className="flex-1 flex justify-end">
                 <Settings/>
             </div>
